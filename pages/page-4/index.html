@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yelp Mock</title>
+    <link rel="stylesheet" href="../../assets/styles/page-4.css" />
+    <script type="module" src="../../assets/scripts/page-4.js"></script>
+  </head>
+  <body>
+    <header class="yelp-header">
+      <div class="yelp-header-inner">
+        <a class="yelp-brand" href="#" data-static-link aria-label="Yelp home">yelp</a>
+
+        <form class="yelp-search" id="search-form">
+          <input
+            id="search-query"
+            type="text"
+            placeholder="things to do, nail salons, plumbers..."
+            aria-label="What are you looking for?"
+          />
+          <input id="search-location" type="text" value="San Jose, CA" aria-label="Location" />
+          <button type="submit" aria-label="Search">⌕</button>
+        </form>
+
+        <nav class="yelp-actions" aria-label="Utility">
+          <a href="#" data-static-link>Yelp for Business</a>
+          <a href="#" data-static-link>Write a Review</a>
+          <a href="#" data-static-link>Start a Project</a>
+          <a href="#" data-static-link>Log In</a>
+          <a class="signup-button" href="#" data-static-link>Sign Up</a>
+        </nav>
+      </div>
+
+      <div class="yelp-subnav">
+        <a href="#" data-static-link>Restaurants</a>
+        <a href="#" data-static-link>Home Services</a>
+        <a href="#" data-static-link>Auto Services</a>
+        <a href="#" data-static-link>Health &amp; Beauty</a>
+        <a href="#" data-static-link>Real Estate</a>
+        <a href="#" data-static-link>More</a>
+      </div>
+    </header>
+
+    <main class="yelp-page">
+      <section class="results-view active" id="results-view-initial">
+        <div class="results-shell">
+          <div class="results-header">
+            <div>
+              <p class="breadcrumbs">Restaurants > The 10 Best Places near San Jose, CA 95126</p>
+              <h1>The 10 Best Places near San Jose, CA 95126</h1>
+            </div>
+            <div class="sort-chip">Yelp Recommended ⌄</div>
+          </div>
+
+          <div class="filter-row">
+            <span class="filter-chip">All</span>
+            <span class="filter-chip">Delivery</span>
+            <span class="filter-chip">Takeout</span>
+            <span class="filter-chip">Open Now</span>
+            <span class="filter-chip">Good for Groups</span>
+            <span class="filter-chip">Outdoor Seating</span>
+          </div>
+
+          <p class="view-status" id="search-status" aria-live="polite"></p>
+
+          <div class="results-list" id="initial-results-list"></div>
+        </div>
+      </section>
+
+      <section class="results-view" id="results-view-target" hidden>
+        <div class="results-shell">
+          <div class="results-header">
+            <div>
+              <p class="breadcrumbs">Restaurants > Westminster Takeout</p>
+              <h1>Best Westminster Takeout near Westminster, CA</h1>
+            </div>
+            <div class="sort-chip">Sort Recommended ⌄</div>
+          </div>
+
+          <div class="filter-row">
+            <span class="filter-chip active">Offers Takeout</span>
+            <span class="filter-chip">Price</span>
+            <span class="filter-chip">Open Now</span>
+            <span class="filter-chip">Offers Delivery</span>
+            <span class="filter-chip">Good for Dinner</span>
+            <span class="filter-chip">Good for Kids</span>
+          </div>
+
+          <div class="results-list" id="target-results-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="yelp-footer">
+      <div class="footer-columns">
+        <section>
+          <h2>About</h2>
+          <a href="#" data-static-link>About Yelp</a>
+          <a href="#" data-static-link>Careers</a>
+          <a href="#" data-static-link>Press</a>
+          <a href="#" data-static-link>Investor Relations</a>
+          <a href="#" data-static-link>Trust &amp; Safety</a>
+          <a href="#" data-static-link>Terms of Service</a>
+          <a href="#" data-static-link>Privacy Policy</a>
+        </section>
+        <section>
+          <h2>Discover</h2>
+          <a href="#" data-static-link>Yelp Project Cost Guides</a>
+          <a href="#" data-static-link>Collections</a>
+          <a href="#" data-static-link>Talk</a>
+          <a href="#" data-static-link>Events</a>
+          <a href="#" data-static-link>Yelp Blog</a>
+          <a href="#" data-static-link>Support</a>
+        </section>
+        <section>
+          <h2>Yelp for Business</h2>
+          <a href="#" data-static-link>Yelp for Business</a>
+          <a href="#" data-static-link>Business Owner Login</a>
+          <a href="#" data-static-link>Claim your Business Page</a>
+          <a href="#" data-static-link>Advertise on Yelp</a>
+          <a href="#" data-static-link>Business Support</a>
+        </section>
+        <section>
+          <h2>RepairPal</h2>
+          <a href="#" data-static-link>RepairPal Home</a>
+          <a href="#" data-static-link>Auto Repair Near Me</a>
+          <a href="#" data-static-link>Auto Repair Estimates</a>
+          <a href="#" data-static-link>Common Problems</a>
+        </section>
+        <section>
+          <h2>Languages</h2>
+          <a href="#" data-static-link>English</a>
+          <h2>Cities</h2>
+          <a href="#" data-static-link>Explore a City</a>
+        </section>
+      </div>
+
+      <p class="footer-copy">
+        Copyright © 2026 Yelp Inc. Yelp, Yelp logo, and related marks are registered trademarks.
+      </p>
+    </footer>
+
+    <div class="modal-backdrop survey-backdrop" id="survey-modal" hidden>
+      <section class="survey-shell" role="dialog" aria-modal="true" aria-labelledby="survey-title">
+        <div class="survey-card">
+          <p class="survey-kicker">Next Step Required</p>
+          <h2 id="survey-title">Complete the follow-up survey</h2>
+          <p class="survey-copy">
+            Open the Qualtrics survey in a new tab. After you finish and return here, confirm
+            completion to continue.
+          </p>
+
+          <div class="survey-actions">
+            <a
+              class="survey-link-button"
+              href="https://qualtrics.com/"
+              target="_blank"
+              rel="noreferrer"
+              id="survey-link"
+            >
+              Open survey
+            </a>
+          </div>
+
+          <label class="survey-confirm">
+            <input type="checkbox" id="survey-complete-checkbox" />
+            <span>I completed the survey and returned to this page.</span>
+          </label>
+
+          <p class="survey-status" id="survey-status"></p>
+
+          <div class="survey-footer">
+            <button class="instruction-button secondary" type="button" id="survey-cancel">
+              Back
+            </button>
+            <button class="instruction-button primary" type="button" id="survey-continue" disabled>
+              Continue to next step
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop instruction-backdrop" id="instruction-modal" hidden>
+      <section
+        class="instruction-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="instruction-title"
+      >
+        <div class="instruction-chrome">
+          <div class="instruction-step-label" id="instruction-step-label">
+            Instruction Page 1 — Oversight Tutorial
+          </div>
+          <div class="instruction-progress" aria-hidden="true">
+            <span class="instruction-progress-dot active"></span>
+            <span class="instruction-progress-dot"></span>
+          </div>
+        </div>
+
+        <div class="instruction-body">
+          <div class="instruction-hero">
+            <p class="instruction-kicker">GUI Agent Oversight Study</p>
+            <h2 id="instruction-title">Getting Familiar with the Oversight Interface</h2>
+            <p class="instruction-lead">
+              Review the tutorial, then continue to the task setup for this oversight condition.
+            </p>
+          </div>
+
+          <div class="instruction-copy" id="instruction-copy">
+            <p>
+              In this task, you will supervise a GUI agent using the
+              <strong data-field="oversight-mechanism-name">OVERSIGHT_MECHANISM_NAME</strong>
+              oversight mechanism.
+            </p>
+            <p>
+              Before starting the task, please watch the short tutorial below to become familiar
+              with how this oversight interface works.
+            </p>
+          </div>
+
+          <div class="tutorial-block" id="tutorial-block">
+            <div class="section-heading">
+              <p class="tutorial-label">Tutorial Video</p>
+              <p class="section-meta">Watch before continuing</p>
+            </div>
+            <div class="tutorial-frame" id="tutorial-frame"></div>
+          </div>
+
+          <div class="instruction-copy instruction-copy-task" id="instruction-task-copy" hidden>
+            <p>Your task is to complete the following objective on this website:</p>
+            <div class="task-card">
+              <p class="task-card-label">Task</p>
+              <p data-field="task-description">TASK_DESCRIPTION</p>
+            </div>
+            <p>To start the task:</p>
+            <ol>
+              <li>Click the MORPH Chrome extension.</li>
+              <li>
+                In the side panel, select
+                <strong data-field="oversight-mechanism-name-2">OVERSIGHT_MECHANISM_NAME</strong>
+                as the oversight mode.
+              </li>
+              <li>Copy and paste the prompt below into the input field in the side panel.</li>
+              <li>Start the agent.</li>
+            </ol>
+            <p>Prompt to use:</p>
+            <div class="prompt-card">
+              <pre data-field="agent-prompt">AGENT_PROMPT</pre>
+            </div>
+            <div class="ready-card">
+              <p>
+                While the agent is running, you can monitor its behavior and interact with it
+                through the interface.
+              </p>
+              <p>When you are ready, click Start Task.</p>
+            </div>
+          </div>
+
+          <p class="instruction-status" id="instruction-status"></p>
+        </div>
+
+        <div class="instruction-actions">
+          <button class="instruction-button secondary" type="button" id="instruction-prev" hidden>
+            Back
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-next">
+            Next
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-start" hidden>
+            Start Task
+          </button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>United Airlines Mock</title>
+    <link rel="stylesheet" href="../../assets/styles/page-2.css" />
+    <script type="module" src="../../assets/scripts/page-2.js"></script>
+  </head>
+  <body>
+    <header class="ua-header">
+      <div class="ua-header-inner">
+        <div class="ua-brand-block">
+          <a class="ua-brand" href="../../" aria-label="United home">
+            <span class="ua-brand-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </a>
+          <nav class="ua-main-nav" aria-label="Primary">
+            <a href="../../">Book <span>⌄</span></a>
+            <a href="../../">My trips <span>⌄</span></a>
+            <a href="../../">Travel info <span>⌄</span></a>
+            <a href="../../">MileagePlus <span>⌄</span></a>
+            <a href="../../">Deals <span>⌄</span></a>
+            <a href="../../">Help <span>›</span></a>
+          </nav>
+        </div>
+
+        <div class="ua-utility-nav" aria-label="Utility">
+          <a href="../../" class="utility-text">◍ English - US $</a>
+          <a href="../../" aria-label="Search" class="utility-icon">⌕</a>
+          <a href="../../" aria-label="Profile" class="utility-icon">◉</a>
+          <a href="../../" aria-label="Cart" class="utility-icon">🛒</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-stage">
+        <img
+          class="hero-image"
+          src="../../assets/images/page-2-united.png"
+          alt="United Airlines homepage mock with flight booking panel"
+        />
+
+        <section class="booking-panel" aria-label="Flight booking form">
+          <div class="booking-top-tabs">
+            <button class="tab active" type="button">Book</button>
+            <button class="tab" type="button">Flight status</button>
+            <button class="tab" type="button">Check-in</button>
+            <button class="tab" type="button">My trips</button>
+          </div>
+
+          <form class="booking-body" id="flight-search-form">
+            <div class="booking-subtabs">
+              <button class="subtab active" type="button">Flight</button>
+              <button class="subtab" type="button">Packages</button>
+              <button class="subtab" type="button">Hotel</button>
+              <button class="subtab" type="button">Car</button>
+              <a class="cruise-link" href="../../">Cruise ↗</a>
+            </div>
+
+            <div class="trip-options">
+              <label class="choice radio active"><span></span>Roundtrip</label>
+              <label class="choice radio"><span></span>One-way</label>
+              <label class="choice check"><span></span>Book with miles</label>
+              <label class="choice check"><span></span>Flexible dates</label>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>From</span>
+                <input
+                  id="flight-from"
+                  class="input-shell input-text"
+                  type="text"
+                  list="airport-options"
+                  placeholder="City or airport"
+                />
+              </label>
+
+              <div class="swap-icon" aria-hidden="true">⇄</div>
+
+              <label class="field">
+                <span>To</span>
+                <input
+                  id="flight-to"
+                  class="input-shell input-text"
+                  type="text"
+                  list="airport-options"
+                  placeholder="City or airport"
+                />
+              </label>
+
+              <label class="field dates-field">
+                <span>Dates</span>
+                <div class="date-range-shell">
+                  <input class="date-input" id="flight-date-start" type="date" />
+                  <span>—</span>
+                  <input class="date-input" id="flight-date-end" type="date" />
+                </div>
+              </label>
+
+              <label class="field travelers-field">
+                <span>Travelers</span>
+                <div class="input-shell">1 Adult</div>
+              </label>
+            </div>
+
+              <div class="booking-actions">
+                <div class="booking-links">
+                <a href="../../" class="advanced-link">Advanced search <span>›</span></a>
+                <p>(Certificates, multi-city and upgrades)</p>
+                <a href="../../">Changed bag rules and fees for optional services</a>
+              </div>
+
+                <div class="cta-stack">
+                <p class="booking-form-status" id="booking-form-status" aria-live="polite"></p>
+                <button class="primary-cta" type="submit">Find flights</button>
+                <button class="secondary-cta" type="button">Find your travel credits</button>
+                </div>
+              </div>
+          </form>
+        </section>
+
+        <datalist id="airport-options">
+          <option value="Phoenix PHX"></option>
+          <option value="Miami MIA"></option>
+          <option value="Newark EWR"></option>
+          <option value="Chicago ORD"></option>
+          <option value="San Francisco SFO"></option>
+          <option value="Los Angeles LAX"></option>
+          <option value="Houston IAH"></option>
+          <option value="Denver DEN"></option>
+          <option value="Washington Dulles IAD"></option>
+          <option value="New York JFK"></option>
+        </datalist>
+      </section>
+
+      <section class="topics-section">
+        <div class="topics-head">
+          <h1>Popular topics</h1>
+          <div class="topic-search">
+            <span>Search united</span>
+            <button type="button" aria-label="Search">⌕</button>
+          </div>
+        </div>
+
+        <div class="topics-grid">
+          <a href="../../"><span>⌁</span>Wi-Fi</a>
+          <a href="../../"><span>✈</span>Change flight</a>
+          <a href="../../"><span>♛</span>United Club</a>
+          <a href="../../"><span>🐾</span>Traveling with pets</a>
+          <a href="../../"><span>▮</span>MileagePlus</a>
+          <a href="../../"><span>🧳</span>Baggage</a>
+          <a href="../../"><span>◉</span>Refund</a>
+          <a href="../../"><span>⌁</span>Help Center</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ua-footer">
+      <div class="footer-top-links">
+        <a href="../../">About United</a>
+        <a href="../../">Products and services</a>
+        <a href="../../">Popular destinations</a>
+        <a href="../../">Careers ↗</a>
+        <a class="notice-link" href="../../">Important notices</a>
+      </div>
+
+      <div class="footer-mid">
+        <button class="footer-search" type="button"><span>⌕</span>Search</button>
+        <div class="footer-locale">🌐 English - United States $ | Español</div>
+        <div class="footer-socials">
+          <a href="../../">♪</a>
+          <a href="../../">f</a>
+          <a href="../../">𝕏</a>
+          <a href="../../">▶</a>
+          <a href="../../">◎</a>
+          <a href="../../">in</a>
+        </div>
+      </div>
+
+      <div class="footer-legal">
+        <a href="../../">Contract of carriage</a>
+        <a href="../../">Lengthy tarmac delay plan</a>
+        <a href="../../">Legal information</a>
+        <a href="../../">Our United Customer Commitment</a>
+        <a href="../../">Help Center</a>
+        <a href="../../">Accessible travel</a>
+        <a href="../../">Web accessibility standards</a>
+        <a href="../../">Privacy Policy</a>
+        <a href="../../">Do Not Sell or Share My Personal Information ↗</a>
+        <a href="../../">Interest Based Ads</a>
+        <a href="../../">United Jetstream ↗</a>
+        <a href="../../">Cargo ↗</a>
+        <a href="../../">Electronic Invoice ↗</a>
+      </div>
+
+      <div class="footer-bottom">
+        <p>
+          ↗ Indicates an external site that may or may not meet accessibility guidelines. Copyright
+          © 2026 United Airlines, Inc. All rights reserved.
+        </p>
+        <div class="footer-logo">UNITED <span aria-hidden="true"></span></div>
+      </div>
+    </footer>
+
+    <div class="modal-backdrop survey-backdrop" id="survey-modal" hidden>
+      <section class="survey-shell" role="dialog" aria-modal="true" aria-labelledby="survey-title">
+        <div class="survey-card">
+          <p class="survey-kicker">Next Step Required</p>
+          <h2 id="survey-title">Complete the follow-up survey</h2>
+          <p class="survey-copy">
+            Open the Qualtrics survey in a new tab. After you finish and return here, confirm
+            completion to continue.
+          </p>
+
+          <div class="survey-actions">
+            <a
+              class="survey-link-button"
+              href="https://qualtrics.com/"
+              target="_blank"
+              rel="noreferrer"
+              id="survey-link"
+            >
+              Open survey
+            </a>
+          </div>
+
+          <label class="survey-confirm">
+            <input type="checkbox" id="survey-complete-checkbox" />
+            <span>I completed the survey and returned to this page.</span>
+          </label>
+
+          <p class="survey-status" id="survey-status"></p>
+
+          <div class="survey-footer">
+            <button class="instruction-button secondary" type="button" id="survey-cancel">
+              Back
+            </button>
+            <button class="instruction-button primary" type="button" id="survey-continue" disabled>
+              Continue to next step
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop instruction-backdrop" id="instruction-modal" hidden>
+      <section
+        class="instruction-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="instruction-title"
+      >
+        <div class="instruction-chrome">
+          <div class="instruction-step-label" id="instruction-step-label">
+            Instruction Page 1 — Oversight Tutorial
+          </div>
+          <div class="instruction-progress" aria-hidden="true">
+            <span class="instruction-progress-dot active"></span>
+            <span class="instruction-progress-dot"></span>
+          </div>
+        </div>
+
+        <div class="instruction-body">
+          <div class="instruction-hero">
+            <p class="instruction-kicker">GUI Agent Oversight Study</p>
+            <h2 id="instruction-title">Getting Familiar with the Oversight Interface</h2>
+            <p class="instruction-lead">
+              Review the tutorial, then continue to the task setup for this oversight condition.
+            </p>
+          </div>
+
+          <div class="instruction-copy" id="instruction-copy">
+            <p>
+              In this task, you will supervise a GUI agent using the
+              <strong data-field="oversight-mechanism-name">OVERSIGHT_MECHANISM_NAME</strong>
+              oversight mechanism.
+            </p>
+            <p>
+              Before starting the task, please watch the short tutorial below to become familiar
+              with how this oversight interface works.
+            </p>
+          </div>
+
+          <div class="tutorial-block" id="tutorial-block">
+            <div class="section-heading">
+              <p class="tutorial-label">Tutorial Video</p>
+              <p class="section-meta">Watch before continuing</p>
+            </div>
+            <div class="tutorial-frame" id="tutorial-frame"></div>
+          </div>
+
+          <div class="instruction-copy instruction-copy-task" id="instruction-task-copy" hidden>
+            <p>Your task is to complete the following objective on this website:</p>
+            <div class="task-card">
+              <p class="task-card-label">Task</p>
+              <p data-field="task-description">TASK_DESCRIPTION</p>
+            </div>
+            <p>To start the task:</p>
+            <ol>
+              <li>Click the MORPH Chrome extension.</li>
+              <li>
+                In the side panel, select
+                <strong data-field="oversight-mechanism-name-2">OVERSIGHT_MECHANISM_NAME</strong>
+                as the oversight mode.
+              </li>
+              <li>Copy and paste the prompt below into the input field in the side panel.</li>
+              <li>Start the agent.</li>
+            </ol>
+            <p>Prompt to use:</p>
+            <div class="prompt-card">
+              <pre data-field="agent-prompt">AGENT_PROMPT</pre>
+            </div>
+            <div class="ready-card">
+              <p>
+                While the agent is running, you can monitor its behavior and interact with it
+                through the interface.
+              </p>
+              <p>When you are ready, click Start Task.</p>
+            </div>
+          </div>
+
+          <p class="instruction-status" id="instruction-status"></p>
+        </div>
+
+        <div class="instruction-actions">
+          <button class="instruction-button secondary" type="button" id="instruction-prev" hidden>
+            Back
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-next">
+            Next
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-start" hidden>
+            Start Task
+          </button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

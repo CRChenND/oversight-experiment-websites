@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 56">
+  <rect width="148" height="56" rx="8" fill="#fff"/>
+  <rect x="10" y="10" width="40" height="36" rx="4" fill="#16439a"/>
+  <text x="30" y="33" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">BBB</text>
+  <text x="60" y="23" fill="#16439a" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700">ACCREDITED</text>
+  <text x="60" y="38" fill="#16439a" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">BUSINESS</text>
+</svg>

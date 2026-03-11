@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BenefitsCal Mock</title>
+    <link rel="stylesheet" href="../../assets/styles/page-3.css" />
+    <script type="module" src="../../assets/scripts/page-3.js"></script>
+  </head>
+  <body>
+    <header class="bc-header">
+      <div class="bc-header-inner">
+        <a class="bc-brand" href="../../" aria-label="BenefitsCal home">
+          <img
+            class="bc-brand-logo"
+            src="../../assets/images/page-3-logo.svg"
+            alt="BenefitsCal"
+          />
+        </a>
+
+        <nav class="bc-main-nav" aria-label="Primary">
+          <a href="../../">Home</a>
+          <a href="../../">Apply For Benefits</a>
+          <a href="../../">Programs</a>
+          <a href="../../">Help</a>
+        </nav>
+
+        <div class="bc-header-actions">
+          <select aria-label="Language selector">
+            <option>English</option>
+          </select>
+          <a class="login-button" href="../../">Log In</a>
+          <button class="search-button" type="button">Search</button>
+          <a class="account-link" href="../../">New ? Create An Account</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="bc-page">
+      <section class="application-shell">
+        <aside class="progress-sidebar" aria-label="Application progress">
+          <p class="sidebar-label">Currently on</p>
+          <p class="sidebar-step">Step 1 of 9</p>
+
+          <div class="progress-card active">
+            <span class="progress-icon" aria-hidden="true">👤</span>
+            <div>
+              <strong>Your Information</strong>
+              <span>Reviewed</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">👥</span>
+            <div>
+              <strong>People</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">🏠</span>
+            <div>
+              <strong>Household Details</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">$</span>
+            <div>
+              <strong>Income</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">💳</span>
+            <div>
+              <strong>Expenses</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">🪙</span>
+            <div>
+              <strong>Assets</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">❗</span>
+            <div>
+              <strong>Other Situations</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">⤴</span>
+            <div>
+              <strong>Document Upload</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+          <div class="progress-card">
+            <span class="progress-icon" aria-hidden="true">✔</span>
+            <div>
+              <strong>Review and Submit</strong>
+              <span>Not Available</span>
+            </div>
+          </div>
+        </aside>
+
+        <section class="application-panel">
+          <form class="form-step active" id="name-form" data-step-panel="1">
+            <div class="step-intro">
+              <h1>What's your name?</h1>
+              <p>(Nice to meet you!)</p>
+              <a class="info-banner" href="../../">Who should fill out this application?</a>
+            </div>
+
+            <label class="field">
+              <span>First Name <strong>(required)</strong></span>
+              <input id="first-name" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Middle Name</span>
+              <input type="text" />
+            </label>
+
+            <label class="field">
+              <span>Last Name <strong>(required)</strong></span>
+              <input id="last-name" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Suffix</span>
+              <select>
+                <option>-Select One-</option>
+                <option>Jr.</option>
+                <option>Sr.</option>
+                <option>III</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Other Names</span>
+              <input type="text" />
+              <small>Maiden, Nicknames, etc.</small>
+            </label>
+
+            <p class="form-status" id="name-form-status" aria-live="polite"></p>
+
+            <div class="form-actions">
+              <button class="nav-button back" type="button" disabled>&lt;</button>
+              <button class="nav-button next" id="name-next-button" type="submit">Next</button>
+            </div>
+          </form>
+
+          <form class="form-step" id="address-form" data-step-panel="2" hidden>
+            <div class="step-intro compact">
+              <h1>Where do you currently live?</h1>
+            </div>
+
+            <label class="field">
+              <span>Address Line 1 <strong>(required)</strong></span>
+              <input id="address-line-1" type="text" />
+            </label>
+
+            <label class="field">
+              <span>Address Line 2</span>
+              <input type="text" />
+              <small>This could be an apartment, unit or dorm room number.</small>
+            </label>
+
+            <label class="field">
+              <span>City <strong>(required)</strong></span>
+              <input id="city" type="text" />
+            </label>
+
+            <label class="field">
+              <span>State</span>
+              <select>
+                <option>California</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Zip Code <strong>(required)</strong></span>
+              <input id="zip-code" type="text" inputmode="numeric" />
+            </label>
+
+            <p class="form-status" id="address-form-status" aria-live="polite"></p>
+
+            <div class="form-actions">
+              <button class="nav-button back" id="address-back-button" type="button">&lt;</button>
+              <button class="nav-button next" type="submit">submit</button>
+            </div>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <footer class="bc-footer">
+      <div class="bc-footer-grid">
+        <section>
+          <h2>Contact Us</h2>
+          <a href="../../">Need support from your county office? ↗</a>
+          <a href="../../">Technical issues using this website? ↗</a>
+          <a href="../../">Find an Office ↗</a>
+          <a href="../../">We want to hear from you! ↗</a>
+          <a href="../../">Have any comments about the site? ↗</a>
+          <a href="../../">Share your feedback ↗</a>
+        </section>
+        <section>
+          <h2>Help &amp; Resources</h2>
+          <a href="../../">Frequently Asked Questions ↗</a>
+          <a href="../../">Programs ↗</a>
+          <a href="../../">Register to Vote ↗</a>
+        </section>
+        <section>
+          <h2>BenefitsCal</h2>
+          <p>
+            BenefitsCal is a portal where Californians can get and manage benefits online. This
+            includes food assistance (CalFresh), cash aid (CalWORKs), and affordable health
+            insurance (Medi-Cal).
+          </p>
+          <p>
+            Sponsored by CalSAWS, the Department of Social Services (CDSS) and the Department of
+            Health Care Services (DHCS).
+          </p>
+          <a href="../../">Learn more about BenefitsCal</a>
+          <a href="../../">State of California Official Website</a>
+        </section>
+      </div>
+      <div class="bc-footer-bottom">
+        <a href="../../">Privacy Policy</a>
+        <a href="../../">Accessibility Policy</a>
+        <a href="../../">Terms &amp; Conditions</a>
+      </div>
+    </footer>
+
+    <div class="modal-backdrop survey-backdrop" id="survey-modal" hidden>
+      <section class="survey-shell" role="dialog" aria-modal="true" aria-labelledby="survey-title">
+        <div class="survey-card">
+          <p class="survey-kicker">Next Step Required</p>
+          <h2 id="survey-title">Complete the follow-up survey</h2>
+          <p class="survey-copy">
+            Open the Qualtrics survey in a new tab. After you finish and return here, confirm
+            completion to continue.
+          </p>
+
+          <div class="survey-actions">
+            <a
+              class="survey-link-button"
+              href="https://qualtrics.com/"
+              target="_blank"
+              rel="noreferrer"
+              id="survey-link"
+            >
+              Open survey
+            </a>
+          </div>
+
+          <label class="survey-confirm">
+            <input type="checkbox" id="survey-complete-checkbox" />
+            <span>I completed the survey and returned to this page.</span>
+          </label>
+
+          <p class="survey-status" id="survey-status"></p>
+
+          <div class="survey-footer">
+            <button class="instruction-button secondary" type="button" id="survey-cancel">
+              Back
+            </button>
+            <button class="instruction-button primary" type="button" id="survey-continue" disabled>
+              Continue to next step
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop instruction-backdrop" id="instruction-modal" hidden>
+      <section
+        class="instruction-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="instruction-title"
+      >
+        <div class="instruction-chrome">
+          <div class="instruction-step-label" id="instruction-step-label">
+            Instruction Page 1 — Oversight Tutorial
+          </div>
+          <div class="instruction-progress" aria-hidden="true">
+            <span class="instruction-progress-dot active"></span>
+            <span class="instruction-progress-dot"></span>
+          </div>
+        </div>
+
+        <div class="instruction-body">
+          <div class="instruction-hero">
+            <p class="instruction-kicker">GUI Agent Oversight Study</p>
+            <h2 id="instruction-title">Getting Familiar with the Oversight Interface</h2>
+            <p class="instruction-lead">
+              Review the tutorial, then continue to the task setup for this oversight condition.
+            </p>
+          </div>
+
+          <div class="instruction-copy" id="instruction-copy">
+            <p>
+              In this task, you will supervise a GUI agent using the
+              <strong data-field="oversight-mechanism-name">OVERSIGHT_MECHANISM_NAME</strong>
+              oversight mechanism.
+            </p>
+            <p>
+              Before starting the task, please watch the short tutorial below to become familiar
+              with how this oversight interface works.
+            </p>
+          </div>
+
+          <div class="tutorial-block" id="tutorial-block">
+            <div class="section-heading">
+              <p class="tutorial-label">Tutorial Video</p>
+              <p class="section-meta">Watch before continuing</p>
+            </div>
+            <div class="tutorial-frame" id="tutorial-frame"></div>
+          </div>
+
+          <div class="instruction-copy instruction-copy-task" id="instruction-task-copy" hidden>
+            <p>Your task is to complete the following objective on this website:</p>
+            <div class="task-card">
+              <p class="task-card-label">Task</p>
+              <p data-field="task-description">TASK_DESCRIPTION</p>
+            </div>
+            <p>To start the task:</p>
+            <ol>
+              <li>Click the MORPH Chrome extension.</li>
+              <li>
+                In the side panel, select
+                <strong data-field="oversight-mechanism-name-2">OVERSIGHT_MECHANISM_NAME</strong>
+                as the oversight mode.
+              </li>
+              <li>Copy and paste the prompt below into the input field in the side panel.</li>
+              <li>Start the agent.</li>
+            </ol>
+            <p>Prompt to use:</p>
+            <div class="prompt-card">
+              <pre data-field="agent-prompt">AGENT_PROMPT</pre>
+            </div>
+            <div class="ready-card">
+              <p>
+                While the agent is running, you can monitor its behavior and interact with it
+                through the interface.
+              </p>
+              <p>When you are ready, click Start Task.</p>
+            </div>
+          </div>
+
+          <p class="instruction-status" id="instruction-status"></p>
+        </div>
+
+        <div class="instruction-actions">
+          <button class="instruction-button secondary" type="button" id="instruction-prev" hidden>
+            Back
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-next">
+            Next
+          </button>
+          <button class="instruction-button primary" type="button" id="instruction-start" hidden>
+            Start Task
+          </button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
