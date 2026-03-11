@@ -3,15 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Oversight Experiment Pages</title>
+    <title>Start Oversight Experiment</title>
     <style>
       :root {
-        --bg: #f4f6fb;
+        --bg: #eef2ff;
         --panel: #ffffff;
         --ink: #101828;
         --muted: #667085;
         --line: #d0d5dd;
         --accent: #0b56d2;
+        --accent-dark: #0945a4;
+        --danger: #b42318;
+        --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
       }
 
       * {
@@ -26,21 +29,24 @@
         padding: 24px;
         font-family: Arial, Helvetica, sans-serif;
         color: var(--ink);
-        background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+        background:
+          radial-gradient(circle at top left, rgba(11, 86, 210, 0.14), transparent 32%),
+          linear-gradient(180deg, #f8faff 0%, var(--bg) 100%);
       }
 
       main {
-        width: min(100%, 760px);
-        padding: 32px;
+        width: min(100%, 560px);
+        padding: 36px;
         border: 1px solid var(--line);
-        border-radius: 20px;
+        border-radius: 24px;
         background: var(--panel);
-        box-shadow: 0 20px 45px rgba(16, 24, 40, 0.08);
+        box-shadow: var(--shadow);
       }
 
       h1 {
         margin: 0 0 12px;
-        font-size: clamp(2rem, 4vw, 3rem);
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.05;
       }
 
       p {
@@ -49,94 +55,243 @@
         line-height: 1.6;
       }
 
-      .card-list {
-        display: grid;
-        gap: 16px;
+      form {
         margin-top: 28px;
       }
 
-      .card {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        align-items: center;
-        padding: 20px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        font-weight: 700;
       }
 
-      .card h2 {
-        margin: 0 0 6px;
-        font-size: 1.1rem;
-      }
-
-      .card a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 130px;
-        min-height: 44px;
+      input {
+        width: 100%;
+        min-height: 52px;
         padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      input:focus {
+        outline: 2px solid rgba(11, 86, 210, 0.18);
+        border-color: var(--accent);
+      }
+
+      button {
+        margin-top: 16px;
+        min-height: 48px;
+        padding: 0 18px;
+        border: 0;
         border-radius: 999px;
         background: var(--accent);
         color: #ffffff;
+        font: inherit;
         font-weight: 700;
-        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--accent-dark);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .hint {
+        margin-top: 18px;
+        font-size: 0.92rem;
+      }
+
+      .status {
+        min-height: 24px;
+        margin-top: 14px;
+        font-size: 0.95rem;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.success {
+        color: var(--accent-dark);
+      }
+
+      .sample {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        font-size: 0.9rem;
+      }
+
+      code {
+        padding: 0.15rem 0.35rem;
+        border-radius: 6px;
+        background: #f2f4f7;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Experiment Page Index</h1>
+      <h1>Start Experiment</h1>
       <p>
-        Static mock pages are organized under <code>pages/</code>. Shared assets live in
-        <code>assets/</code>.
+        Enter a participant ID to open the assigned step 1 page for that participant.
       </p>
 
-      <section class="card-list" aria-label="Available pages">
-        <article class="card">
-          <div>
-            <h2>Page 1</h2>
-            <p>Car financing landing page static mock.</p>
-          </div>
-          <a href="./pages/page-1/">Open Page</a>
-        </article>
-        <article class="card">
-          <div>
-            <h2>Page 2</h2>
-            <p>United Airlines booking homepage static mock.</p>
-          </div>
-          <a href="./pages/page-2/">Open Page</a>
-        </article>
-        <article class="card">
-          <div>
-            <h2>Page 3</h2>
-            <p>BenefitsCal multi-step application mock.</p>
-          </div>
-          <a href="./pages/page-3/">Open Page</a>
-        </article>
-        <article class="card">
-          <div>
-            <h2>Page 4</h2>
-            <p>Yelp-style restaurant search and ordering mock.</p>
-          </div>
-          <a href="./pages/page-4/">Open Page</a>
-        </article>
-        <article class="card">
-          <div>
-            <h2>Page 5</h2>
-            <p>Ticket marketplace selection and checkout mock.</p>
-          </div>
-          <a href="./pages/page-5/">Open Page</a>
-        </article>
-        <article class="card">
-          <div>
-            <h2>Page 6</h2>
-            <p>Amazon-style product page with review submission mock.</p>
-          </div>
-          <a href="./pages/page-6/">Open Page</a>
-        </article>
-      </section>
+      <form id="pid-form">
+        <label for="pid-input">Participant ID</label>
+        <input
+          id="pid-input"
+          name="pid"
+          type="text"
+          placeholder="Example: P001"
+          autocomplete="off"
+          required
+        />
+        <button id="submit-button" type="submit">Open Step 1</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
+
+      <p class="hint">
+        The page reads <code>data/experiment-config.csv</code> and redirects to
+        <code>pages/&lt;step_1_page&gt;/?pid=&lt;PID&gt;&amp;step=1</code>.
+      </p>
+
+      <p class="sample">Sample IDs: <code>P001</code>, <code>P008</code>, <code>P021</code></p>
     </main>
+
+    <script>
+      const CONFIG_PATH = "./data/experiment-config.csv";
+      const form = document.querySelector("#pid-form");
+      const pidInput = document.querySelector("#pid-input");
+      const submitButton = document.querySelector("#submit-button");
+      const status = document.querySelector("#status");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const pid = pidInput.value.trim().toUpperCase();
+        if (!pid) {
+          renderStatus("Please enter a participant ID.", "error");
+          return;
+        }
+
+        setLoading(true);
+        renderStatus("Loading participant configuration...", "");
+
+        try {
+          const rows = await loadCsvRows(CONFIG_PATH);
+          const match = rows.find((row) => row.pid === pid);
+
+          if (!match) {
+            renderStatus(`No configuration found for PID "${pid}".`, "error");
+            setLoading(false);
+            return;
+          }
+
+          const firstPage = match.step_1_page;
+          if (!firstPage) {
+            renderStatus(`PID "${pid}" is missing a step_1_page value.`, "error");
+            setLoading(false);
+            return;
+          }
+
+          renderStatus(`Redirecting ${pid} to step 1...`, "success");
+          const nextUrl = `./pages/${encodeURIComponent(firstPage)}/?pid=${encodeURIComponent(pid)}&step=1`;
+          window.location.href = nextUrl;
+        } catch (error) {
+          renderStatus(`Unable to load participant config: ${error.message}`, "error");
+          setLoading(false);
+        }
+      });
+
+      function setLoading(isLoading) {
+        submitButton.disabled = isLoading;
+        submitButton.textContent = isLoading ? "Loading..." : "Open Step 1";
+      }
+
+      function renderStatus(message, tone) {
+        status.textContent = message;
+        status.className = tone ? `status ${tone}` : "status";
+      }
+
+      async function loadCsvRows(path) {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Could not load ${path}.`);
+        }
+
+        const text = await response.text();
+        return parseCsv(text);
+      }
+
+      function parseCsv(text) {
+        const records = [];
+        let currentField = "";
+        let currentRow = [];
+        let inQuotes = false;
+
+        for (let index = 0; index < text.length; index += 1) {
+          const char = text[index];
+          const nextChar = text[index + 1];
+
+          if (char === '"') {
+            if (inQuotes && nextChar === '"') {
+              currentField += '"';
+              index += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+            continue;
+          }
+
+          if (char === "," && !inQuotes) {
+            currentRow.push(currentField.trim());
+            currentField = "";
+            continue;
+          }
+
+          if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && nextChar === "\n") {
+              index += 1;
+            }
+            currentRow.push(currentField.trim());
+            currentField = "";
+            if (currentRow.some((field) => field.length > 0)) {
+              records.push(currentRow);
+            }
+            currentRow = [];
+            continue;
+          }
+
+          currentField += char;
+        }
+
+        if (currentField || currentRow.length) {
+          currentRow.push(currentField.trim());
+          if (currentRow.some((field) => field.length > 0)) {
+            records.push(currentRow);
+          }
+        }
+
+        if (!records.length) {
+          return [];
+        }
+
+        const [headers, ...rows] = records;
+        return rows.map((row) =>
+          headers.reduce((result, header, columnIndex) => {
+            result[header] = row[columnIndex] ?? "";
+            return result;
+          }, {}),
+        );
+      }
+    </script>
   </body>
 </html>
