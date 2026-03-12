@@ -1,9 +1,13 @@
 .survey-shell {
   width: min(100%, 760px);
+  max-height: min(92vh, 920px);
 }
 
 .survey-card {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
   padding: 28px 28px 24px;
+  max-height: min(92vh, 920px);
   border-radius: 24px;
   background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
   box-shadow: 0 28px 70px rgba(3, 12, 26, 0.3);
@@ -32,6 +36,9 @@
 
 .survey-form {
   margin-top: 20px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .survey-form-body {
@@ -116,6 +123,7 @@
 @media (max-width: 760px) {
   .survey-card {
     padding: 22px 20px 18px;
+    max-height: 100vh;
     border-radius: 20px;
   }
 
