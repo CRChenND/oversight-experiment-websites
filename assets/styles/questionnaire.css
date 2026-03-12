@@ -1,0 +1,130 @@
+.survey-shell {
+  width: min(100%, 760px);
+}
+
+.survey-card {
+  padding: 28px 28px 24px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 28px 70px rgba(3, 12, 26, 0.3);
+}
+
+.survey-kicker {
+  margin: 0 0 8px;
+  color: #0b6dca;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.survey-card h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+.survey-copy {
+  margin: 12px 0 0;
+  color: #516071;
+  line-height: 1.6;
+}
+
+.survey-form {
+  margin-top: 20px;
+}
+
+.survey-form-body {
+  display: grid;
+  gap: 16px;
+}
+
+.survey-question {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid #dbe5f0;
+  border-radius: 16px;
+  background: #fbfdff;
+}
+
+.survey-question-title {
+  padding: 0;
+  color: #243041;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.survey-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+  color: #667085;
+  font-size: 0.84rem;
+}
+
+.survey-scale-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.survey-scale-option,
+.survey-choice-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dbe5f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #243041;
+}
+
+.survey-scale-option {
+  justify-content: center;
+  flex-direction: column;
+}
+
+.survey-scale-option input,
+.survey-choice-option input {
+  margin: 0;
+}
+
+.survey-choice-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.survey-status {
+  min-height: 20px;
+  margin: 12px 0 0;
+  color: #667085;
+  font-size: 0.88rem;
+}
+
+.survey-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (max-width: 760px) {
+  .survey-card {
+    padding: 22px 20px 18px;
+    border-radius: 20px;
+  }
+
+  .survey-scale-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .survey-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

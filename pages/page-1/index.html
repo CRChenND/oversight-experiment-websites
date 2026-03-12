@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CarGurus Financing</title>
     <link rel="stylesheet" href="../../assets/styles/page-1.css" />
+    <link rel="stylesheet" href="../../assets/styles/questionnaire.css" />
     <script type="module" src="../../assets/scripts/page-1.js"></script>
   </head>
   <body>
@@ -223,29 +224,14 @@
     <div class="modal-backdrop survey-backdrop" id="survey-modal" hidden>
       <section class="survey-shell" role="dialog" aria-modal="true" aria-labelledby="survey-title">
         <div class="survey-card">
-          <p class="survey-kicker">Next Step Required</p>
-          <h2 id="survey-title">Complete the follow-up survey</h2>
-          <p class="survey-copy">
-            Open the Qualtrics survey in a new tab. After you finish and return here, confirm
-            completion to continue to the next step.
+          <p class="survey-kicker" id="survey-kicker">Post-task Survey</p>
+          <h2 id="survey-title">NASA Task Load Index (TLX)</h2>
+          <p class="survey-copy" id="survey-copy">
+            Please complete the required questionnaire before continuing.
           </p>
-
-          <div class="survey-actions">
-            <a
-              class="survey-link-button"
-              href="https://qualtrics.com/"
-              target="_blank"
-              rel="noreferrer"
-              id="survey-link"
-            >
-              Open survey
-            </a>
-          </div>
-
-          <label class="survey-confirm">
-            <input type="checkbox" id="survey-complete-checkbox" />
-            <span>I completed the survey and returned to this page.</span>
-          </label>
+          <form class="survey-form" id="survey-form" novalidate>
+            <div class="survey-form-body" id="survey-form-body"></div>
+          </form>
 
           <p class="survey-status" id="survey-status"></p>
 

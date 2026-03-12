@@ -1,13 +1,10 @@
+import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+
 const prequalModal = document.querySelector("#prequal-modal");
 const prequalOpenButton = document.querySelector('[data-open-modal="prequal-modal"]');
 const prequalCloseButton = document.querySelector("[data-close-modal]");
 const prequalForm = document.querySelector("#prequal-form");
 const surveyModal = document.querySelector("#survey-modal");
-const surveyLink = document.querySelector("#survey-link");
-const surveyCheckbox = document.querySelector("#survey-complete-checkbox");
-const surveyStatus = document.querySelector("#survey-status");
-const surveyCancelButton = document.querySelector("#survey-cancel");
-const surveyContinueButton = document.querySelector("#survey-continue");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
 const instructionTitle = document.querySelector("#instruction-title");
@@ -43,6 +40,17 @@ const MECHANISM_MAP = {
   },
 };
 let navigationContext = null;
+let currentMechanismName = "Oversight";
+const questionnaireModal = setupQuestionnaireModal({
+  getNavigationContext: () => navigationContext,
+  onCancel: () => {
+    if (prequalModal) {
+      prequalModal.hidden = false;
+      syncBodyScroll();
+    }
+  },
+  onVisibilityChange: syncBodyScroll,
+});
 
 setupPrequalModal();
 setupInstructionModal().catch((error) => {
@@ -86,64 +94,6 @@ function setupPrequalModal() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !prequalModal.hidden) {
       toggleModal(false);
-    }
-  });
-}
-
-function setupSurveyModal() {
-  if (
-    !surveyModal ||
-    !surveyLink ||
-    !surveyCheckbox ||
-    !surveyStatus ||
-    !surveyCancelButton ||
-    !surveyContinueButton
-  ) {
-    return;
-  }
-
-  surveyLink.href = QUALTRICS_SURVEY_URL;
-
-  surveyCheckbox.addEventListener("change", () => {
-    surveyContinueButton.disabled = !surveyCheckbox.checked;
-    if (!surveyCheckbox.checked) {
-      surveyStatus.textContent = "";
-      return;
-    }
-
-    surveyStatus.textContent = navigationContext?.isComplete
-      ? "Survey completion confirmed. You can finish this task."
-      : "Survey completion confirmed. You can continue to the next step.";
-  });
-
-  surveyCancelButton.addEventListener("click", () => {
-    closeSurveyModal();
-    if (prequalModal) {
-      prequalModal.hidden = false;
-      syncBodyScroll();
-    }
-  });
-
-  surveyContinueButton.addEventListener("click", () => {
-    if (!navigationContext) {
-      surveyStatus.textContent = "Next-step routing is not available for this page.";
-      return;
-    }
-
-    if (navigationContext.isComplete) {
-      surveyStatus.textContent = "Task complete. You may close this page.";
-      surveyContinueButton.disabled = true;
-      surveyContinueButton.textContent = "Task completed";
-      surveyCancelButton.hidden = true;
-      return;
-    }
-
-    window.location.href = navigationContext.nextUrl;
-  });
-
-  surveyModal.addEventListener("click", (event) => {
-    if (event.target === surveyModal) {
-      closeSurveyModal();
     }
   });
 }
@@ -208,6 +158,7 @@ async function setupInstructionModal() {
     return;
   }
 
+  currentMechanismName = mechanism.name;
   applyInstructionContent(
     {
       oversight_mechanism_name: mechanism.name,
@@ -223,7 +174,6 @@ async function setupInstructionModal() {
     },
   );
   navigationContext = buildNavigationContext(experimentRow, resolvedStep, pid);
-  setupSurveyModal();
 
   let currentInstructionPage = 1;
 
@@ -233,7 +183,7 @@ async function setupInstructionModal() {
       ? "Instruction Page 1 — Oversight Tutorial"
       : "Instruction Page 2 — Task Instructions";
     instructionTitle.textContent = isTutorialStep
-      ? "Getting Familiar with the Oversight Interface"
+      ? `${currentMechanismName} Oversight Mechanism`
       : "Task Instructions";
     if (tutorialCopy) {
       tutorialCopy.hidden = !isTutorialStep;
@@ -243,6 +193,7 @@ async function setupInstructionModal() {
     previousButton.hidden = isTutorialStep;
     nextButton.hidden = !isTutorialStep;
     startButton.hidden = isTutorialStep;
+    nextButton.textContent = "I understand this oversight mechanism";
     progressDots.forEach((dot, index) => {
       dot.classList.toggle("active", index === currentInstructionPage - 1);
     });
@@ -430,41 +381,16 @@ function syncBodyScroll() {
   const hasVisibleModal =
     (prequalModal && !prequalModal.hidden) ||
     (instructionModal && !instructionModal.hidden) ||
-    (surveyModal && !surveyModal.hidden);
+    questionnaireModal.isQuestionnaireVisible();
   document.body.classList.toggle("modal-open", Boolean(hasVisibleModal));
 }
 
 function openSurveyModal() {
-  if (
-    !surveyModal ||
-    !surveyCheckbox ||
-    !surveyContinueButton ||
-    !surveyStatus ||
-    !surveyCancelButton
-  ) {
-    return;
-  }
-
-  surveyCheckbox.checked = false;
-  surveyContinueButton.disabled = true;
-  surveyCancelButton.hidden = false;
-  surveyContinueButton.textContent = navigationContext?.isComplete
-    ? "Finish task"
-    : "Continue to next step";
-  surveyStatus.textContent = navigationContext?.isComplete
-    ? "Complete the Qualtrics survey, then confirm to finish this task."
-    : "Complete the Qualtrics survey, then confirm to continue.";
-  surveyModal.hidden = false;
-  syncBodyScroll();
+  questionnaireModal.openQuestionnaireModal();
 }
 
 function closeSurveyModal() {
-  if (!surveyModal) {
-    return;
-  }
-
-  surveyModal.hidden = true;
-  syncBodyScroll();
+  questionnaireModal.closeQuestionnaireModal();
 }
 
 function buildNavigationContext(experimentRow, currentStep, pid) {
@@ -475,6 +401,8 @@ function buildNavigationContext(experimentRow, currentStep, pid) {
     return {
       isComplete: true,
       nextUrl: null,
+      currentStep,
+      pid: effectivePid,
     };
   }
 
@@ -486,5 +414,7 @@ function buildNavigationContext(experimentRow, currentStep, pid) {
   return {
     isComplete: false,
     nextUrl: `../../pages/${nextPageId}/?pid=${encodeURIComponent(effectivePid)}&step=${nextStep}`,
+    currentStep,
+    pid: effectivePid,
   };
 }

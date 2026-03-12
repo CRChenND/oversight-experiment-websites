@@ -1,3 +1,5 @@
+import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+
 const writeReviewButton = document.querySelector("#write-review-button");
 const reviewModal = document.querySelector("#review-modal");
 const reviewForm = document.querySelector("#review-form");
@@ -8,11 +10,6 @@ const reviewPublicNameInput = document.querySelector("#review-public-name");
 const reviewStatus = document.querySelector("#review-status");
 const starButtons = Array.from(document.querySelectorAll(".star-button"));
 const surveyModal = document.querySelector("#survey-modal");
-const surveyLink = document.querySelector("#survey-link");
-const surveyCheckbox = document.querySelector("#survey-complete-checkbox");
-const surveyStatus = document.querySelector("#survey-status");
-const surveyCancelButton = document.querySelector("#survey-cancel");
-const surveyContinueButton = document.querySelector("#survey-continue");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
 const instructionTitle = document.querySelector("#instruction-title");
@@ -38,7 +35,18 @@ const MECHANISM_MAP = {
 };
 
 let navigationContext = null;
+let currentMechanismName = "Oversight";
 let selectedRating = 0;
+const questionnaireModal = setupQuestionnaireModal({
+  getNavigationContext: () => navigationContext,
+  onCancel: () => {
+    if (reviewModal) {
+      reviewModal.hidden = false;
+      syncBodyScroll();
+    }
+  },
+  onVisibilityChange: syncBodyScroll,
+});
 
 setupStaticLinks();
 setupReviewFlow();
@@ -127,49 +135,6 @@ function closeReviewModal() {
   syncBodyScroll();
 }
 
-function setupSurveyModal() {
-  if (!surveyModal || !surveyLink || !surveyCheckbox || !surveyStatus || !surveyCancelButton || !surveyContinueButton) return;
-  surveyLink.href = QUALTRICS_SURVEY_URL;
-
-  surveyCheckbox.addEventListener("change", () => {
-    surveyContinueButton.disabled = !surveyCheckbox.checked;
-    if (!surveyCheckbox.checked) {
-      surveyStatus.textContent = "";
-      return;
-    }
-    surveyStatus.textContent = navigationContext?.isComplete
-      ? "Survey completion confirmed. You can finish this task."
-      : "Survey completion confirmed. You can continue to the next step.";
-  });
-
-  surveyCancelButton.addEventListener("click", () => {
-    closeSurveyModal();
-    if (reviewModal) {
-      reviewModal.hidden = false;
-      syncBodyScroll();
-    }
-  });
-
-  surveyContinueButton.addEventListener("click", () => {
-    if (!navigationContext) {
-      surveyStatus.textContent = "Next-step routing is not available for this page.";
-      return;
-    }
-    if (navigationContext.isComplete) {
-      surveyStatus.textContent = "Task complete. You may close this page.";
-      surveyContinueButton.disabled = true;
-      surveyContinueButton.textContent = "Task completed";
-      surveyCancelButton.hidden = true;
-      return;
-    }
-    window.location.href = navigationContext.nextUrl;
-  });
-
-  surveyModal.addEventListener("click", (event) => {
-    if (event.target === surveyModal) closeSurveyModal();
-  });
-}
-
 async function setupInstructionModal() {
   if (!instructionModal || !instructionStepLabel || !instructionTitle || !tutorialBlock || !tutorialFrame || !taskCopy || !statusMessage || !previousButton || !nextButton || !startButton) return;
 
@@ -210,6 +175,7 @@ async function setupInstructionModal() {
     return;
   }
 
+  currentMechanismName = mechanism.name;
   applyInstructionContent({
     oversight_mechanism_name: mechanism.name,
     oversight_mechanism_tutorial_video: mechanism.tutorialVideo,
@@ -218,19 +184,19 @@ async function setupInstructionModal() {
   }, { pid, fallbackPid: experimentRow.pid, requestedStep, resolvedStep });
 
   navigationContext = buildNavigationContext(experimentRow, resolvedStep, pid);
-  setupSurveyModal();
 
   let currentInstructionPage = 1;
   const renderStep = () => {
     const isTutorialStep = currentInstructionPage === 1;
     instructionStepLabel.textContent = isTutorialStep ? "Instruction Page 1 — Oversight Tutorial" : "Instruction Page 2 — Task Instructions";
-    instructionTitle.textContent = isTutorialStep ? "Getting Familiar with the Oversight Interface" : "Task Instructions";
+    instructionTitle.textContent = isTutorialStep ? `${currentMechanismName} Oversight Mechanism` : "Task Instructions";
     if (tutorialCopy) tutorialCopy.hidden = !isTutorialStep;
     tutorialBlock.hidden = !isTutorialStep;
     taskCopy.hidden = isTutorialStep;
     previousButton.hidden = isTutorialStep;
     nextButton.hidden = !isTutorialStep;
     startButton.hidden = isTutorialStep;
+    nextButton.textContent = "I understand this oversight mechanism";
     progressDots.forEach((dot, index) => dot.classList.toggle("active", index === currentInstructionPage - 1));
   };
 
@@ -364,32 +330,28 @@ function syncBodyScroll() {
   const hasVisibleModal =
     (instructionModal && !instructionModal.hidden) ||
     (reviewModal && !reviewModal.hidden) ||
-    (surveyModal && !surveyModal.hidden);
+    questionnaireModal.isQuestionnaireVisible();
   document.body.classList.toggle("modal-open", Boolean(hasVisibleModal));
 }
 
 function openSurveyModal() {
-  if (!surveyModal || !surveyCheckbox || !surveyContinueButton || !surveyStatus || !surveyCancelButton) return;
-  surveyCheckbox.checked = false;
-  surveyCancelButton.hidden = false;
-  surveyContinueButton.disabled = true;
-  surveyContinueButton.textContent = navigationContext?.isComplete ? "Finish task" : "Continue to next step";
-  surveyStatus.textContent = navigationContext?.isComplete ? "Complete the Qualtrics survey, then confirm to finish this task." : "Complete the Qualtrics survey, then confirm to continue.";
-  surveyModal.hidden = false;
-  syncBodyScroll();
+  questionnaireModal.openQuestionnaireModal();
 }
 
 function closeSurveyModal() {
-  if (!surveyModal) return;
-  surveyModal.hidden = true;
-  syncBodyScroll();
+  questionnaireModal.closeQuestionnaireModal();
 }
 
 function buildNavigationContext(experimentRow, currentStep, pid) {
   const effectivePid = pid ?? experimentRow.pid;
   const nextStep = currentStep + 1;
-  if (nextStep > 4) return { isComplete: true, nextUrl: null };
+  if (nextStep > 4) return { isComplete: true, nextUrl: null, currentStep, pid: effectivePid };
   const nextPageId = experimentRow[`step_${nextStep}_page`];
   if (!nextPageId) return null;
-  return { isComplete: false, nextUrl: `../../pages/${nextPageId}/?pid=${encodeURIComponent(effectivePid)}&step=${nextStep}` };
+  return {
+    isComplete: false,
+    nextUrl: `../../pages/${nextPageId}/?pid=${encodeURIComponent(effectivePid)}&step=${nextStep}`,
+    currentStep,
+    pid: effectivePid,
+  };
 }
