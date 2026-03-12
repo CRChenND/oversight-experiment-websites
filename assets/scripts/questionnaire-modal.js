@@ -310,10 +310,8 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     }
 
     if (navigationContext?.isComplete) {
-      status.textContent = "Demographic survey submitted. You may close this page.";
-      continueButton.disabled = true;
-      continueButton.textContent = "Study completed";
-      cancelButton.hidden = true;
+      status.textContent = "Demographic survey submitted. Returning to the PID entry page...";
+      window.location.href = new URL("../../", window.location.href).toString();
       return;
     }
 
