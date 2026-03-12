@@ -103,11 +103,6 @@
         cursor: wait;
       }
 
-      .hint {
-        margin-top: 18px;
-        font-size: 0.92rem;
-      }
-
       .status {
         min-height: 24px;
         margin-top: 14px;
@@ -120,13 +115,6 @@
 
       .status.success {
         color: var(--accent-dark);
-      }
-
-      .sample {
-        margin-top: 20px;
-        padding-top: 18px;
-        border-top: 1px solid var(--line);
-        font-size: 0.9rem;
       }
 
       code {
@@ -154,16 +142,9 @@
           autocomplete="off"
           required
         />
-        <button id="submit-button" type="submit">Open Step 1</button>
+        <button id="submit-button" type="submit">Start</button>
         <p id="status" class="status" aria-live="polite"></p>
       </form>
-
-      <p class="hint">
-        The page reads <code>data/experiment-config.csv</code> and redirects to
-        <code>pages/&lt;step_1_page&gt;/?pid=&lt;PID&gt;&amp;step=1</code>.
-      </p>
-
-      <p class="sample">Sample IDs: <code>P001</code>, <code>P008</code>, <code>P021</code></p>
     </main>
 
     <script>
@@ -213,7 +194,7 @@
 
       function setLoading(isLoading) {
         submitButton.disabled = isLoading;
-        submitButton.textContent = isLoading ? "Loading..." : "Open Step 1";
+        submitButton.textContent = isLoading ? "Loading..." : "Start";
       }
 
       function renderStatus(message, tone) {
