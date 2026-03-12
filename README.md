@@ -45,3 +45,29 @@ Then open:
 ```bash
 http://localhost:8000/?pid=P001
 ```
+
+## Export Firebase data
+
+Participant questionnaire data is written to Firestore under `participants/{pid}`. To export it, use the Admin SDK script in [`scripts/export-firebase-data.mjs`](/Users/chaoranchen/Documents/GitHub/oversight-experiment-websites/scripts/export-firebase-data.mjs).
+
+1. Install the Admin SDK locally:
+
+```bash
+npm install firebase-admin
+```
+
+2. Download a Firebase service account JSON from the Firebase or Google Cloud console.
+
+3. Run the export:
+
+```bash
+node scripts/export-firebase-data.mjs --service-account /path/to/service-account.json
+```
+
+`/path/to/service-account.json` is a placeholder. Replace it with the actual local path to your downloaded Firebase service account JSON, for example:
+
+```bash
+node scripts/export-firebase-data.mjs --service-account /Users/chaoranchen/Downloads/agent-oversight-firebase-adminsdk-fbsvc-2dc50040a0.json
+```
+
+This writes both JSON and CSV exports to the `exports/` directory by default.

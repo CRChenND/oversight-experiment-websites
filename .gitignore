@@ -1,2 +1,17 @@
 .DS_Store
 **/.DS_Store
+
+# Local dependencies
+node_modules/
+
+# Local environment files
+.env
+.env.*
+
+# Firebase admin credentials
+service-account.json
+*-service-account.json
+firebase-service-account*.json
+
+# Local data exports
+exports/
