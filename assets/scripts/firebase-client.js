@@ -87,20 +87,20 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
   };
 
   let payload;
-  if (questionnaire === "demographics") {
+  if (questionnaire === "finalQuestionnaire") {
     payload = {
       ...basePayload,
-      demographics: {
+      finalQuestionnaire: {
         responses,
         submittedAt: serverTimestamp(),
       },
     };
-  } else if (questionnaire === "tlx" && stepKey) {
+  } else if (questionnaire === "postTaskSurvey" && stepKey) {
     payload = {
       ...basePayload,
       steps: {
         [stepKey]: {
-          tlx: {
+          postTaskSurvey: {
             responses,
             submittedAt: serverTimestamp(),
           },
@@ -108,7 +108,7 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
       },
     };
   } else {
-    throw new Error("Missing step number for TLX response.");
+    throw new Error(`Unsupported questionnaire payload: ${questionnaire}`);
   }
 
   await setDoc(participantRef, payload, { merge: true });
