@@ -37,10 +37,10 @@ const PAGE_CONTENT_PATH = "../../data/page-content.csv";
 const CURRENT_PAGE_ID = "page-5";
 const QUALTRICS_SURVEY_URL = "https://qualtrics.com/";
 const MECHANISM_MAP = {
-  R1: { name: "Risk Gated", tutorialVideo: "../../assets/video/risk_gated_oversight_tutorial.mp4" },
-  R2: { name: "Supervisory Co-Execution", tutorialVideo: "../../assets/video/supervisory_co_execution_oversight_tutorial.mp4" },
-  R3: { name: "Action Confirmation", tutorialVideo: "../../assets/video/action_confirmation_oversight_tutorial.mp4" },
-  R4: { name: "Structural Amplification", tutorialVideo: "../../assets/video/structural_amplification_oversight_tutorial.mp4" },
+  R1: { name: "Risk Gated", tutorialVideo: "../../assets/video/risk_gated_oversight_tutorial_h264.mp4" },
+  R2: { name: "Supervisory Co-Execution", tutorialVideo: "../../assets/video/supervisory_co_execution_oversight_tutorial_h264.mp4" },
+  R3: { name: "Action Confirmation", tutorialVideo: "../../assets/video/action_confirmation_oversight_tutorial_h264.mp4" },
+  R4: { name: "Structural Amplification", tutorialVideo: "../../assets/video/structural_amplification_oversight_tutorial_h264.mp4" },
 };
 
 const events = [

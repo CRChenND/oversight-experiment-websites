@@ -26,7 +26,7 @@ const staticLinks = Array.from(document.querySelectorAll("[data-static-link]"));
 const EXPERIMENT_CONFIG_PATH = "../../data/experiment-config.csv";
 const PAGE_CONTENT_PATH = "../../data/page-content.csv";
 const CURRENT_PAGE_ID = "page-0";
-const INITIAL_TUTORIAL_VIDEO = "../../assets/video/initial_tutorial.mp4";
+const INITIAL_TUTORIAL_VIDEO = "../../assets/video/initial_tutorial_h264.mp4";
 
 let navigationContext = null;
 
