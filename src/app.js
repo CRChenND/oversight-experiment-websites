@@ -88,7 +88,8 @@ function renderLanding(pid, sequence) {
         <p class="label">Participant</p>
         <h2>${escapeHtml(pid)}</h2>
         <p class="helper">
-          The sequence below is fully determined by the CSV configuration for this pid.
+          The sequence below is fully determined by the CSV configuration for this pid. All
+          participants first complete the shared page-0 warm-up before entering step 1.
         </p>
       </div>
       <div class="card">
@@ -96,7 +97,7 @@ function renderLanding(pid, sequence) {
         <ol class="sequence-list">${items}</ol>
       </div>
       <div class="actions">
-        <a class="button-link primary" href="${buildUrl(pid, 1)}">Start Step 1</a>
+        <a class="button-link primary" href="./pages/page-0/?pid=${encodeURIComponent(pid)}&step=0">Start Tutorial</a>
       </div>
     </div>
   `;

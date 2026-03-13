@@ -1,4 +1,5 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 
 const prequalModal = document.querySelector("#prequal-modal");
 const prequalOpenButton = document.querySelector('[data-open-modal="prequal-modal"]');
@@ -251,6 +252,7 @@ function applyInstructionContent(content, context) {
     promptNode.textContent = content.agent_prompt;
   }
 
+  ensureInstructionPersonaBlock(taskCopy);
   tutorialFrame.replaceChildren(buildTutorialNode(content.oversight_mechanism_tutorial_video));
   statusMessage.textContent = buildStatusMessage(context);
 }

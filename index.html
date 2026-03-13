@@ -129,7 +129,8 @@
     <main>
       <h1>Start Experiment</h1>
       <p>
-        Enter a participant ID to open the assigned step 1 page for that participant.
+        Enter a participant ID to open the shared tutorial page before the participant's assigned
+        sequence begins.
       </p>
 
       <form id="pid-form">
@@ -183,8 +184,8 @@
             return;
           }
 
-          renderStatus(`Redirecting ${pid} to step 1...`, "success");
-          const nextUrl = `./pages/${encodeURIComponent(firstPage)}/?pid=${encodeURIComponent(pid)}&step=1`;
+          renderStatus(`Redirecting ${pid} to the shared tutorial page...`, "success");
+          const nextUrl = `./pages/page-0/?pid=${encodeURIComponent(pid)}&step=0`;
           window.location.href = nextUrl;
         } catch (error) {
           renderStatus(`Unable to load participant config: ${error.message}`, "error");

@@ -1,4 +1,5 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 
 const writeReviewButton = document.querySelector("#write-review-button");
 const reviewModal = document.querySelector("#review-modal");
@@ -234,6 +235,7 @@ function applyInstructionContent(content, context) {
   const promptNode = document.querySelector('[data-field="agent-prompt"]');
   if (taskNode) taskNode.textContent = content.task_description;
   if (promptNode) promptNode.textContent = content.agent_prompt;
+  ensureInstructionPersonaBlock(taskCopy);
   tutorialFrame.replaceChildren(buildTutorialNode(content.oversight_mechanism_tutorial_video));
   statusMessage.textContent = buildStatusMessage(context);
 }

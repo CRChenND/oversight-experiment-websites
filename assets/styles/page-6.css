@@ -748,6 +748,13 @@ body.modal-open { overflow: hidden; }
 }
 .task-card-label { margin: 0 0 8px; color: #0b6dca; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .prompt-card pre { margin: 0; white-space: pre-wrap; font: inherit; line-height: 1.65; }
+.persona-card { margin-top: 14px; }
+.persona-intro { margin: 0 0 12px; color: #425466; line-height: 1.55; }
+.persona-grid { display: grid; gap: 10px; }
+.persona-line { display: grid; gap: 4px; margin: 0; padding-top: 10px; border-top: 1px solid #dbe5f0; }
+.persona-line:first-child { padding-top: 0; border-top: 0; }
+.persona-line strong { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: #0b6dca; }
+.persona-line span { color: #243041; line-height: 1.5; }
 .ready-card { padding: 12px 14px; border-radius: 14px; background: linear-gradient(180deg, rgba(11, 109, 202, 0.08), rgba(11, 109, 202, 0.02)); }
 .instruction-status { min-height: 20px; margin: 10px 0 0; color: #667085; font-size: 0.84rem; }
 .instruction-actions {

@@ -1,4 +1,5 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 
 const flightSearchForm = document.querySelector("#flight-search-form");
 const fromInput = document.querySelector("#flight-from");
@@ -259,6 +260,7 @@ function applyInstructionContent(content, context) {
     promptNode.textContent = content.agent_prompt;
   }
 
+  ensureInstructionPersonaBlock(taskCopy);
   tutorialFrame.replaceChildren(buildTutorialNode(content.oversight_mechanism_tutorial_video));
   statusMessage.textContent = buildStatusMessage(context);
 }

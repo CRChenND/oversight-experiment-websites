@@ -1,4 +1,5 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
+import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 
 const nameForm = document.querySelector("#name-form");
 const addressForm = document.querySelector("#address-form");
@@ -271,6 +272,7 @@ function applyInstructionContent(content, context) {
     promptNode.textContent = content.agent_prompt;
   }
 
+  ensureInstructionPersonaBlock(taskCopy);
   tutorialFrame.replaceChildren(buildTutorialNode(content.oversight_mechanism_tutorial_video));
   statusMessage.textContent = buildStatusMessage(context);
 }
