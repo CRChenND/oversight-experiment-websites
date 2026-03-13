@@ -488,11 +488,17 @@ function createScaleQuestion(question) {
 
   const options = document.createElement("div");
   options.className = "survey-scale-options";
+  if (question.options.length === 7) {
+    options.classList.add("survey-scale-options-seven");
+  }
 
   question.options.forEach((option, index) => {
     const optionId = `${question.id}-${index}`;
     const label = document.createElement("label");
     label.className = "survey-scale-option";
+    if (question.options.length === 7) {
+      label.classList.add("survey-scale-option-seven");
+    }
     label.htmlFor = optionId;
 
     const input = document.createElement("input");

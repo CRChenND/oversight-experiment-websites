@@ -81,6 +81,10 @@ function setupPrequalModal() {
 
   prequalForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!prequalForm.checkValidity()) {
+      prequalForm.reportValidity();
+      return;
+    }
     toggleModal(false);
     openSurveyModal();
   });

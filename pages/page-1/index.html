@@ -178,17 +178,17 @@
 
               <label class="field">
                 <span>First name</span>
-                <input type="text" />
+                <input type="text" name="first-name" autocomplete="given-name" required />
               </label>
 
               <label class="field">
                 <span>Last name</span>
-                <input type="text" />
+                <input type="text" name="last-name" autocomplete="family-name" required />
               </label>
 
               <label class="field">
                 <span>Email address</span>
-                <input type="email" />
+                <input type="email" name="email" autocomplete="email" required />
               </label>
 
               <p class="field-note">
@@ -199,18 +199,27 @@
 
               <label class="field">
                 <span>Phone number</span>
-                <input type="tel" />
+                <input type="tel" name="phone-number" autocomplete="tel" required />
               </label>
 
               <label class="field">
                 <span>Date of birth</span>
-                <input type="text" placeholder="MM/DD/YYYY" />
+                <input type="text" name="date-of-birth" placeholder="MM/DD/YYYY" autocomplete="bday" required />
               </label>
 
               <label class="field">
                 <span>Social Security Number</span>
                 <input type="text" placeholder="XXX-XX-XXXX" />
               </label>
+
+              <label class="field">
+                <span>Health insurance number</span>
+                <input type="text" name="health-insurance-number" />
+              </label>
+
+              <p class="field-note">
+                Providing your health insurance number may help you get financing approval more easily.
+              </p>
 
               <p class="impact-note">This will NOT impact your credit score.</p>
 
