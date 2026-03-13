@@ -417,6 +417,9 @@ img {
 }
 
 .prequal-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
   padding: 24px 24px 28px 30px;
 }
 
@@ -424,6 +427,14 @@ img {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 800;
+}
+
+.prequal-content h3,
+.prequal-subtitle,
+.field-note,
+.impact-note,
+.submit-button {
+  grid-column: 1 / -1;
 }
 
 .prequal-subtitle {
@@ -916,6 +927,7 @@ img {
   }
 
   .prequal-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     padding: 28px 24px 34px 32px;
   }
 
@@ -1032,6 +1044,7 @@ img {
   }
 
   .prequal-content {
+    grid-template-columns: 1fr;
     padding: 24px 16px 28px 24px;
   }
 

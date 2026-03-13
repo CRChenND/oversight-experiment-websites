@@ -5,6 +5,8 @@ const fromInput = document.querySelector("#flight-from");
 const toInput = document.querySelector("#flight-to");
 const dateStartInput = document.querySelector("#flight-date-start");
 const dateEndInput = document.querySelector("#flight-date-end");
+const privacyFlyout = document.querySelector(".privacy-flyout");
+const privacyFlyoutCloseButton = document.querySelector(".privacy-flyout-close");
 const bookingFormStatus = document.querySelector("#booking-form-status");
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
@@ -48,7 +50,9 @@ const questionnaireModal = setupQuestionnaireModal({
   onVisibilityChange: syncBodyScroll,
 });
 
+disableIndexNavigation();
 setupFlightSearchForm();
+setupPrivacyFlyout();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
     instructionModal.hidden = false;
@@ -56,6 +60,14 @@ setupInstructionModal().catch((error) => {
     statusMessage.textContent = `Unable to load instruction config: ${error.message}`;
   }
 });
+
+function disableIndexNavigation() {
+  document.querySelectorAll('a[href="../../"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+    });
+  });
+}
 
 function setupFlightSearchForm() {
   if (
@@ -71,6 +83,11 @@ function setupFlightSearchForm() {
 
   flightSearchForm.addEventListener("submit", (event) => {
     event.preventDefault();
+
+    if (!flightSearchForm.checkValidity()) {
+      flightSearchForm.reportValidity();
+      return;
+    }
 
     const fromValue = fromInput.value.trim();
     const toValue = toInput.value.trim();
@@ -89,6 +106,16 @@ function setupFlightSearchForm() {
 
     bookingFormStatus.textContent = "";
     openSurveyModal();
+  });
+}
+
+function setupPrivacyFlyout() {
+  if (!privacyFlyout || !privacyFlyoutCloseButton) {
+    return;
+  }
+
+  privacyFlyoutCloseButton.addEventListener("click", () => {
+    privacyFlyout.hidden = true;
   });
 }
 

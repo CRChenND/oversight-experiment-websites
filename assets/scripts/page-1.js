@@ -52,6 +52,7 @@ const questionnaireModal = setupQuestionnaireModal({
   onVisibilityChange: syncBodyScroll,
 });
 
+disableIndexNavigation();
 setupPrequalModal();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
@@ -60,6 +61,14 @@ setupInstructionModal().catch((error) => {
     statusMessage.textContent = `Unable to load instruction config: ${error.message}`;
   }
 });
+
+function disableIndexNavigation() {
+  document.querySelectorAll('a[href="../../"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+    });
+  });
+}
 
 function setupPrequalModal() {
   if (!prequalModal || !prequalOpenButton || !prequalCloseButton || !prequalForm) {

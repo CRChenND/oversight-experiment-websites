@@ -6,6 +6,8 @@ const paymentView = document.querySelector("#payment-view");
 const eventsFooter = document.querySelector("#events-footer");
 const paymentForm = document.querySelector("#payment-form");
 const paymentStatus = document.querySelector("#payment-status");
+const orderSummaryToggle = document.querySelector("#order-summary-toggle");
+const orderSummaryDetails = document.querySelector("#order-summary-details");
 const cardholderNameInput = document.querySelector("#cardholder-name");
 const billingAddressInput = document.querySelector("#billing-address");
 const billingZipInput = document.querySelector("#billing-zip");
@@ -70,9 +72,11 @@ const questionnaireModal = setupQuestionnaireModal({
   onVisibilityChange: syncBodyScroll,
 });
 
+disableIndexNavigation();
 setupStaticLinks();
 renderEvents();
 setupPaymentFlow();
+setupOrderSummary();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
     instructionModal.hidden = false;
@@ -80,6 +84,14 @@ setupInstructionModal().catch((error) => {
     statusMessage.textContent = `Unable to load instruction config: ${error.message}`;
   }
 });
+
+function disableIndexNavigation() {
+  document.querySelectorAll('a[href="../../"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+    });
+  });
+}
 
 function setupStaticLinks() {
   staticLinks.forEach((link) => {
@@ -171,6 +183,18 @@ function setupPaymentFlow() {
 
     paymentStatus.textContent = "";
     openSurveyModal();
+  });
+}
+
+function setupOrderSummary() {
+  if (!orderSummaryToggle || !orderSummaryDetails) {
+    return;
+  }
+
+  orderSummaryToggle.addEventListener("click", () => {
+    const isExpanded = orderSummaryToggle.getAttribute("aria-expanded") === "true";
+    orderSummaryToggle.setAttribute("aria-expanded", String(!isExpanded));
+    orderSummaryDetails.hidden = isExpanded;
   });
 }
 

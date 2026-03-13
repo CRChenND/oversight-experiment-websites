@@ -48,6 +48,7 @@ const questionnaireModal = setupQuestionnaireModal({
   onVisibilityChange: syncBodyScroll,
 });
 
+disableIndexNavigation();
 setupStaticLinks();
 setupReviewFlow();
 setupInstructionModal().catch((error) => {
@@ -57,6 +58,14 @@ setupInstructionModal().catch((error) => {
     statusMessage.textContent = `Unable to load instruction config: ${error.message}`;
   }
 });
+
+function disableIndexNavigation() {
+  document.querySelectorAll('a[href="../../"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+    });
+  });
+}
 
 function setupStaticLinks() {
   staticLinks.forEach((link) => {

@@ -157,18 +157,17 @@
                   <strong>Highly Recommended</strong>
                 </label>
                 <div class="protect-box">
-                  <p>✓ Get reimbursed up to 100% of your ticket cost if you can't attend due to covered reasons.</p>
                   <p>✓ Receive 24/7 assistance that can find parking info, book hotels and more.</p>
                 </div>
                 <label class="protect-option">
                   <input type="radio" name="protection" />
-                  <span>No, don't protect my $13.09 ticket purchase.</span>
+                  <span>No, don't protect my ticket purchase.</span>
                 </label>
                 <p class="protection-note">10,901 people protected their tickets in the last 7 days</p>
               </section>
 
               <p class="checkout-disclaimer">We are a resale marketplace, not the ticket seller. Prices are set by third-party sellers and may be above or below face value.</p>
-              <p class="checkout-disclaimer">By clicking 'Place Order', you will be charged $13.09.</p>
+              <p class="checkout-disclaimer">By clicking 'Place Order', you will be charged $22.09.</p>
               <p class="checkout-disclaimer muted">By clicking 'Place Order', you are agreeing to TicketCenter.com's terms &amp; policies. All sales are final.</p>
               <p class="payment-status" id="payment-status" aria-live="polite"></p>
               <button class="place-order-button" type="submit">Place Order</button>
@@ -177,8 +176,21 @@
 
           <aside class="order-summary">
             <h2>Order Summary</h2>
-            <p>Order Total: $13.09</p>
-            <a href="#" data-static-link>Details</a>
+            <p>Order Total: $22.09</p>
+            <button class="order-summary-toggle" id="order-summary-toggle" type="button" aria-expanded="false">
+              <span>Details</span>
+              <span class="order-summary-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="order-summary-details" id="order-summary-details" hidden>
+              <div class="order-summary-line">
+                <span>Ticket price</span>
+                <span>$13.09</span>
+              </div>
+              <div class="order-summary-line">
+                <span>Ticket protection</span>
+                <span>$9.00</span>
+              </div>
+            </div>
           </aside>
         </div>
 
