@@ -1,6 +1,7 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 import { setupInstructionReminder } from "./instruction-reminder.js";
+import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 
 const flightSearchForm = document.querySelector("#flight-search-form");
 const fromInput = document.querySelector("#flight-from");
@@ -197,6 +198,7 @@ async function setupInstructionModal() {
     },
   );
   navigationContext = buildNavigationContext(experimentRow, resolvedStep, pid);
+  const { clearPromptCopyFeedback } = setupInstructionPromptCopy();
 
   let currentInstructionPage = 1;
 
@@ -224,16 +226,20 @@ async function setupInstructionModal() {
 
   previousButton.addEventListener("click", () => {
     currentInstructionPage = 1;
+    clearPromptCopyFeedback();
     renderStep();
   });
 
   nextButton.addEventListener("click", () => {
     currentInstructionPage = 2;
+    clearPromptCopyFeedback();
     renderStep();
   });
 
   setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
+  startButton.addEventListener("click", clearPromptCopyFeedback);
 
+  clearPromptCopyFeedback();
   instructionModal.hidden = false;
   renderStep();
   syncBodyScroll();

@@ -231,23 +231,21 @@
               <li>Use the copy button below, then paste the prompt directly into the extension input field.</li>
               <li>Start the agent.</li>
             </ol>
-            <div class="prompt-header">
-              <div>
-                <p class="prompt-heading">Prompt to use:</p>
-                <p class="prompt-hint">You can copy this prompt directly into the plugin input box.</p>
-              </div>
-              <button class="prompt-copy-button" type="button" id="instruction-copy-prompt" aria-label="Copy prompt">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M9 9h9v11H9z"></path>
-                  <path d="M6 5h9v2H8v9H6z"></path>
-                </svg>
-                <span>Copy</span>
-              </button>
-            </div>
+            <p>Prompt to use:</p>
             <div class="prompt-card">
+              <div class="instruction-prompt-toolbar">
+                <p class="instruction-prompt-hint">You can copy this prompt directly into the plugin input box.</p>
+                <button class="instruction-prompt-copy-button" type="button" id="instruction-copy-prompt" aria-label="Copy prompt">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M9 9h9v11H9z"></path>
+                    <path d="M6 5h9v2H8v9H6z"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+              </div>
               <pre data-field="agent-prompt">AGENT_PROMPT</pre>
             </div>
-            <p class="prompt-copy-feedback" id="instruction-copy-feedback" aria-live="polite"></p>
+            <p class="instruction-prompt-copy-feedback" id="instruction-copy-feedback" aria-live="polite"></p>
             <div class="ready-card">
               <p>
                 While the agent is running, you can monitor its behavior and interact with it

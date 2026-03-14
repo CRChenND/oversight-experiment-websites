@@ -1,4 +1,5 @@
 import { setupInstructionReminder } from "./instruction-reminder.js";
+import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 
 const postLaunchButton = document.querySelector("#post-launch-button");
 const composerModal = document.querySelector("#composer-modal");
@@ -19,8 +20,6 @@ const tutorialFrame = document.querySelector("#tutorial-frame");
 const tutorialCopy = document.querySelector("#instruction-copy");
 const taskCopy = document.querySelector("#instruction-task-copy");
 const statusMessage = document.querySelector("#instruction-status");
-const promptCopyButton = document.querySelector("#instruction-copy-prompt");
-const promptCopyFeedback = document.querySelector("#instruction-copy-feedback");
 const previousButton = document.querySelector("#instruction-prev");
 const nextButton = document.querySelector("#instruction-next");
 const startButton = document.querySelector("#instruction-start");
@@ -194,6 +193,7 @@ async function setupInstructionModal() {
     pid,
     fallbackPid: experimentRow.pid,
   });
+  const { clearPromptCopyFeedback } = setupInstructionPromptCopy();
 
   let currentInstructionPage = 1;
   const renderStep = () => {
@@ -231,15 +231,12 @@ async function setupInstructionModal() {
   });
 
   setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
+  startButton.addEventListener("click", clearPromptCopyFeedback);
 
   clearPromptCopyFeedback();
   instructionModal.hidden = false;
   renderStep();
   syncBodyScroll();
-
-  if (promptCopyButton) {
-    promptCopyButton.addEventListener("click", handlePromptCopy);
-  }
 }
 
 function applyInstructionContent(content, context) {
@@ -264,36 +261,6 @@ function buildStatusMessage({ pid, fallbackPid }) {
   }
 
   return "";
-}
-
-async function handlePromptCopy() {
-  const promptNode = document.querySelector('[data-field="agent-prompt"]');
-  const promptText = promptNode?.textContent?.trim();
-
-  if (!promptText) {
-    setPromptCopyFeedback("Prompt unavailable.");
-    return;
-  }
-
-  try {
-    if (!navigator.clipboard?.writeText) {
-      throw new Error("Clipboard API unavailable");
-    }
-    await navigator.clipboard.writeText(promptText);
-    setPromptCopyFeedback("Prompt copied. Paste it directly into the plugin input box.");
-  } catch (_error) {
-    setPromptCopyFeedback("Copy failed. Please select the prompt manually.");
-  }
-}
-
-function setPromptCopyFeedback(message) {
-  if (promptCopyFeedback) {
-    promptCopyFeedback.textContent = message;
-  }
-}
-
-function clearPromptCopyFeedback() {
-  setPromptCopyFeedback("");
 }
 
 function buildTutorialNode(value) {
