@@ -9,6 +9,10 @@ const paymentForm = document.querySelector("#payment-form");
 const paymentStatus = document.querySelector("#payment-status");
 const orderSummaryToggle = document.querySelector("#order-summary-toggle");
 const orderSummaryDetails = document.querySelector("#order-summary-details");
+const orderTotal = document.querySelector("#order-total");
+const chargeDisclaimer = document.querySelector("#charge-disclaimer");
+const ticketProtectionLine = document.querySelector("#ticket-protection-line");
+const ticketProtectionValue = document.querySelector("#ticket-protection-value");
 const cardholderNameInput = document.querySelector("#cardholder-name");
 const billingAddressInput = document.querySelector("#billing-address");
 const billingZipInput = document.querySelector("#billing-zip");
@@ -18,6 +22,8 @@ const cardNumberInput = document.querySelector("#card-number");
 const cardMonthInput = document.querySelector("#card-month");
 const cardYearInput = document.querySelector("#card-year");
 const cardCvvInput = document.querySelector("#card-cvv");
+const protectionInputs = Array.from(document.querySelectorAll('input[name="protection"]'));
+const protectionOptions = Array.from(document.querySelectorAll(".protect-option"));
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
@@ -65,6 +71,8 @@ const events = [
   ["FRI", "MAY 8", "7:15PM", "San Francisco Giants vs. Pittsburgh Pirates"],
   ["SUN", "MAY 10", "1:05PM", "San Francisco Giants vs. Pittsburgh Pirates"],
 ];
+const BASE_TICKET_PRICE = 13.09;
+const TICKET_PROTECTION_PRICE = 9.0;
 
 let navigationContext = null;
 let currentMechanismName = "Oversight";
@@ -78,6 +86,7 @@ setupStaticLinks();
 renderEvents();
 setupPaymentFlow();
 setupOrderSummary();
+setupProtectionToggle();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
     instructionModal.hidden = false;
@@ -207,6 +216,52 @@ function setupOrderSummary() {
     orderSummaryToggle.setAttribute("aria-expanded", String(!isExpanded));
     orderSummaryDetails.hidden = isExpanded;
   });
+}
+
+function getProtectionSelection() {
+  return protectionInputs.find((input) => input.checked)?.value ?? "yes";
+}
+
+function formatCurrency(value) {
+  return `$${value.toFixed(2)}`;
+}
+
+function syncProtectionUi() {
+  const hasProtection = getProtectionSelection() === "yes";
+  const total = BASE_TICKET_PRICE + (hasProtection ? TICKET_PROTECTION_PRICE : 0);
+
+  protectionOptions.forEach((option) => {
+    const input = option.querySelector('input[name="protection"]');
+    option.classList.toggle("selected", Boolean(input?.checked));
+  });
+
+  if (orderTotal) {
+    orderTotal.textContent = `Order Total: ${formatCurrency(total)}`;
+  }
+
+  if (chargeDisclaimer) {
+    chargeDisclaimer.textContent = `By clicking 'Place Order', you will be charged ${formatCurrency(total)}.`;
+  }
+
+  if (ticketProtectionLine) {
+    ticketProtectionLine.hidden = !hasProtection;
+  }
+
+  if (ticketProtectionValue) {
+    ticketProtectionValue.textContent = formatCurrency(hasProtection ? TICKET_PROTECTION_PRICE : 0);
+  }
+}
+
+function setupProtectionToggle() {
+  if (protectionInputs.length === 0) {
+    return;
+  }
+
+  protectionInputs.forEach((input) => {
+    input.addEventListener("change", syncProtectionUi);
+  });
+
+  syncProtectionUi();
 }
 
 async function setupInstructionModal() {
