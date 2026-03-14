@@ -241,6 +241,7 @@ img {
 .field {
   display: grid;
   gap: 8px;
+  align-content: start;
 }
 
 .dates-field {
@@ -258,7 +259,7 @@ img {
 .field-help {
   display: block;
   margin-top: 8px;
-  color: #667085;
+  color: #98a2b3;
   font-size: 0.76rem;
   line-height: 1.45;
 }
