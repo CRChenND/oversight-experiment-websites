@@ -77,39 +77,62 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
     throw new Error("Missing pid. Questionnaire responses cannot be saved.");
   }
 
-  const user = await ensureAnonymousAuth();
   const participantRef = doc(db, "participants", pid);
   const stepKey = Number.isInteger(step) && step > 0 ? `step_${step}` : null;
-  const basePayload = {
+  const buildBasePayload = (ownerUid = null) => ({
     pid,
-    ownerUid: user.uid,
+    ownerUid,
     updatedAt: serverTimestamp(),
-  };
+  });
 
-  let payload;
-  if (questionnaire === "finalQuestionnaire") {
-    payload = {
-      ...basePayload,
-      finalQuestionnaire: {
-        responses,
-        submittedAt: serverTimestamp(),
-      },
-    };
-  } else if (questionnaire === "postTaskSurvey" && stepKey) {
-    payload = {
-      ...basePayload,
-      steps: {
-        [stepKey]: {
-          postTaskSurvey: {
-            responses,
-            submittedAt: serverTimestamp(),
+  const buildPayload = (ownerUid = null) => {
+    const basePayload = buildBasePayload(ownerUid);
+
+    if (questionnaire === "finalQuestionnaire") {
+      return {
+        ...basePayload,
+        finalQuestionnaire: {
+          responses,
+          submittedAt: serverTimestamp(),
+        },
+      };
+    }
+
+    if (questionnaire === "postTaskSurvey" && stepKey) {
+      return {
+        ...basePayload,
+        steps: {
+          [stepKey]: {
+            postTaskSurvey: {
+              responses,
+              submittedAt: serverTimestamp(),
+            },
           },
         },
-      },
-    };
-  } else {
+      };
+    }
+
     throw new Error(`Unsupported questionnaire payload: ${questionnaire}`);
+  };
+
+  try {
+    await setDoc(participantRef, buildPayload(auth.currentUser?.uid ?? null), { merge: true });
+    return;
+  } catch (error) {
+    const shouldRetryWithAuth =
+      error?.code === "permission-denied" ||
+      error?.code === "unauthenticated" ||
+      error?.code === "failed-precondition";
+
+    if (!shouldRetryWithAuth) {
+      throw error;
+    }
   }
 
-  await setDoc(participantRef, payload, { merge: true });
+  const user = await ensureAnonymousAuth();
+  await setDoc(
+    participantRef,
+    buildPayload(user.uid),
+    { merge: true },
+  );
 }

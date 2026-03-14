@@ -542,6 +542,22 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     });
   };
 
+  const formatQuestionnaireSaveError = (error) => {
+    if (!error) {
+      return "Unknown error";
+    }
+
+    const parts = [];
+    if (error.code) {
+      parts.push(error.code);
+    }
+    if (error.message) {
+      parts.push(error.message);
+    }
+
+    return parts.join(": ") || "Unknown error";
+  };
+
   const submitQuestionnaire = async () => {
     if (!activeConfig) {
       status.textContent = "Questionnaire configuration is unavailable.";
@@ -562,7 +578,8 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     try {
       await persistResponses(activeConfig.key, responses, navigationContext);
     } catch (error) {
-      status.textContent = `Could not save questionnaire responses: ${error.message}`;
+      console.error("Questionnaire save failed", error);
+      status.textContent = `Could not save questionnaire responses: ${formatQuestionnaireSaveError(error)}`;
       syncContinueState();
       return;
     }
