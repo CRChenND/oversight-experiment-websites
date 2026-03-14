@@ -59,17 +59,10 @@ function ensurePromptCopyStyles() {
   style.textContent = `
     .instruction-prompt-toolbar {
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: flex-end;
       gap: 16px;
       margin-bottom: 10px;
-    }
-
-    .instruction-prompt-hint {
-      margin: 0;
-      color: #516071;
-      font-size: 0.88rem;
-      line-height: 1.45;
     }
 
     .instruction-prompt-copy-button {
