@@ -5,6 +5,7 @@ const PERSONA_FIELDS = [
   ["Phone number", "(213) 555-0198"],
   ["Email", "john.davis87273@gmail.com"],
   ["Address", "123 Main Street, Los Angeles, CA"],
+  ["Zipcode", "90001"],
   ["Health insurance policy number", "UHC-CA-2298-7781"],
   ["Credit card number", "4635787633522289"],
   ["CVV", "123"],
