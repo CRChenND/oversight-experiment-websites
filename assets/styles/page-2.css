@@ -256,6 +256,13 @@ img {
   grid-column: 1;
 }
 
+.booking-actions {
+  grid-column: 3;
+  display: grid;
+  align-content: start;
+  margin-top: 28px;
+}
+
 .field-help {
   display: block;
   margin-top: 8px;
@@ -333,17 +340,11 @@ img {
   font-size: 1.8rem;
 }
 
-.booking-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 28px;
-}
-
 .cta-stack {
   display: grid;
   gap: 16px;
-  align-content: end;
-  width: min(100%, 272px);
+  align-content: start;
+  width: 100%;
 }
 
 .booking-form-status {
@@ -1031,6 +1032,12 @@ body.modal-open {
 
   .field-grid {
     grid-template-columns: 1fr;
+  }
+
+  .travelers-field,
+  .credit-score-field,
+  .booking-actions {
+    grid-column: auto;
   }
 
   .swap-icon {
