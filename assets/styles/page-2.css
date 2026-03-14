@@ -255,6 +255,14 @@ img {
   grid-column: 1;
 }
 
+.field-help {
+  display: block;
+  margin-top: 8px;
+  color: #667085;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
 .field span {
   font-size: 0.94rem;
   font-weight: 700;
@@ -536,56 +544,6 @@ img {
   height: 36px;
   border-radius: 50%;
   border: 3px solid #ffffff;
-}
-
-.privacy-flyout {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 900;
-  display: grid;
-  gap: 10px;
-  width: min(320px, calc(100vw - 32px));
-  max-height: calc(100vh - 48px);
-  padding: 16px 18px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(3, 19, 43, 0.96) 0%, rgba(5, 28, 58, 0.94) 100%);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
-  color: #ffffff;
-  overflow-y: auto;
-}
-
-.privacy-flyout h2 {
-  margin: -2px 0 0;
-  font-size: 1.18rem;
-  line-height: 1.15;
-}
-
-.privacy-flyout p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.privacy-flyout-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: end;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
-  font: inherit;
-  font-size: 1.3rem;
-  line-height: 1;
-  cursor: pointer;
 }
 
 .modal-backdrop {
@@ -1088,10 +1046,6 @@ body.modal-open {
     gap: 12px;
   }
 
-  .privacy-flyout {
-    right: 16px;
-    bottom: 16px;
-  }
 }
 
 @media (max-width: 560px) {
@@ -1140,20 +1094,4 @@ body.modal-open {
     flex-direction: column-reverse;
   }
 
-  .privacy-flyout {
-    width: calc(100vw - 24px);
-    right: 12px;
-    bottom: 12px;
-    max-height: calc(100vh - 24px);
-    padding: 16px 16px 14px;
-    border-radius: 16px;
-  }
-
-  .privacy-flyout h2 {
-    font-size: 1.08rem;
-  }
-
-  .privacy-flyout p {
-    font-size: 0.84rem;
-  }
 }

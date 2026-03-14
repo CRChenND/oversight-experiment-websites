@@ -8,8 +8,6 @@ const fromInput = document.querySelector("#flight-from");
 const toInput = document.querySelector("#flight-to");
 const dateStartInput = document.querySelector("#flight-date-start");
 const dateEndInput = document.querySelector("#flight-date-end");
-const privacyFlyout = document.querySelector(".privacy-flyout");
-const privacyFlyoutCloseButton = document.querySelector(".privacy-flyout-close");
 const bookingFormStatus = document.querySelector("#booking-form-status");
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
@@ -55,7 +53,6 @@ const questionnaireModal = setupQuestionnaireModal({
 
 disableIndexNavigation();
 setupFlightSearchForm();
-setupPrivacyFlyout();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
     instructionModal.hidden = false;
@@ -109,16 +106,6 @@ function setupFlightSearchForm() {
 
     bookingFormStatus.textContent = "";
     openSurveyModal();
-  });
-}
-
-function setupPrivacyFlyout() {
-  if (!privacyFlyout || !privacyFlyoutCloseButton) {
-    return;
-  }
-
-  privacyFlyoutCloseButton.addEventListener("click", () => {
-    privacyFlyout.hidden = true;
   });
 }
 
