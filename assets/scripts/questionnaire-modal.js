@@ -855,7 +855,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     title.textContent = activeConfig.title;
     copy.textContent = copyParts.join(" ");
     form.hidden = false;
-    cancelButton.hidden = false;
+    cancelButton.hidden = activePageIndex === 0;
     cancelButton.textContent = "Back";
     continueButton.textContent =
       activePageIndex < activePages.length - 1 ? "Next" : activeConfig.continueLabel;
