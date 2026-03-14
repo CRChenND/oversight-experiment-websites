@@ -144,7 +144,13 @@
                 </div>
                 <div class="checkout-grid">
                   <label><span>*Credit Card Number</span><input id="card-number" type="text" placeholder="#### #### #### ####" /></label>
-                  <label class="expiry-group"><span>*Expiration Date</span><div class="phone-row"><select id="card-month"><option>Month</option><option>01</option><option>02</option></select><select id="card-year"><option>Year</option><option>2026</option><option>2027</option></select></div></label>
+                  <label class="expiry-group">
+                    <span>*Expiration Date</span>
+                    <div class="phone-row">
+                      <input id="card-month" type="text" inputmode="numeric" placeholder="MM" maxlength="2" />
+                      <input id="card-year" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4" />
+                    </div>
+                  </label>
                   <label><span>*Security Code</span><input id="card-cvv" type="text" placeholder="CVV/CVC" /></label>
                 </div>
               </section>

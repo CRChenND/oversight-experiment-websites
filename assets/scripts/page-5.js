@@ -169,8 +169,8 @@ function setupPaymentFlow() {
       !billingCityInput.value.trim() ||
       !mobilePhoneInput.value.trim() ||
       !cardNumberInput.value.trim() ||
-      cardMonthInput.value === "Month" ||
-      cardYearInput.value === "Year" ||
+      !cardMonthInput.value.trim() ||
+      !cardYearInput.value.trim() ||
       !cardCvvInput.value.trim()
     ) {
       paymentStatus.textContent = "Complete all required payment fields before placing the order.";
@@ -179,6 +179,16 @@ function setupPaymentFlow() {
 
     if (!/^\d{5}$/.test(billingZipInput.value.trim())) {
       paymentStatus.textContent = "Enter a valid 5-digit zip code.";
+      return;
+    }
+
+    if (!/^\d{2}$/.test(cardMonthInput.value.trim()) || Number(cardMonthInput.value.trim()) < 1 || Number(cardMonthInput.value.trim()) > 12) {
+      paymentStatus.textContent = "Enter a valid 2-digit expiration month.";
+      return;
+    }
+
+    if (!/^\d{4}$/.test(cardYearInput.value.trim())) {
+      paymentStatus.textContent = "Enter a valid 4-digit expiration year.";
       return;
     }
 
