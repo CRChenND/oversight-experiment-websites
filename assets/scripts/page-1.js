@@ -1,5 +1,6 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
+import { setupInstructionReminder } from "./instruction-reminder.js";
 
 const prequalModal = document.querySelector("#prequal-modal");
 const prequalOpenButton = document.querySelector('[data-open-modal="prequal-modal"]');
@@ -223,10 +224,7 @@ async function setupInstructionModal() {
     renderStep();
   });
 
-  startButton.addEventListener("click", () => {
-    instructionModal.hidden = true;
-    syncBodyScroll();
-  });
+  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
   instructionModal.hidden = false;
   renderStep();

@@ -1,5 +1,6 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
+import { setupInstructionReminder } from "./instruction-reminder.js";
 
 const writeReviewButton = document.querySelector("#write-review-button");
 const reviewModal = document.querySelector("#review-modal");
@@ -218,10 +219,7 @@ async function setupInstructionModal() {
     currentInstructionPage = 2;
     renderStep();
   });
-  startButton.addEventListener("click", () => {
-    instructionModal.hidden = true;
-    syncBodyScroll();
-  });
+  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
   instructionModal.hidden = false;
   renderStep();

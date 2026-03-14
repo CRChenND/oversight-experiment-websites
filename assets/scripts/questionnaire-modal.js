@@ -939,7 +939,8 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
               key: "postTaskSurvey",
               kicker: "Post-task Survey",
               title: "Oversight Experience Survey",
-              copy: "Please answer every question before continuing to the demographic questionnaire.",
+              copy:
+                "This step's task is complete. Please answer every question before continuing to the demographic questionnaire.",
               continueLabel: "Continue to demographic survey",
               questions: POST_TASK_SURVEY_ITEMS,
               paginateBySection: true,
@@ -958,7 +959,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
               key: "postTaskSurvey",
               kicker: "Post-task Survey",
               title: "Oversight Experience Survey",
-              copy: "Please answer every question before continuing.",
+              copy: "This step's task is complete. Please answer every question before continuing.",
               continueLabel: "Continue to next step",
               questions: POST_TASK_SURVEY_ITEMS,
               paginateBySection: true,

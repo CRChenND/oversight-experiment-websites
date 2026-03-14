@@ -1,5 +1,6 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
+import { setupInstructionReminder } from "./instruction-reminder.js";
 
 const flightSearchForm = document.querySelector("#flight-search-form");
 const fromInput = document.querySelector("#flight-from");
@@ -231,10 +232,7 @@ async function setupInstructionModal() {
     renderStep();
   });
 
-  startButton.addEventListener("click", () => {
-    instructionModal.hidden = true;
-    syncBodyScroll();
-  });
+  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
   instructionModal.hidden = false;
   renderStep();

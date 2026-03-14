@@ -566,6 +566,55 @@ body.modal-open {
   color: #0b5db0;
 }
 
+.prompt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.prompt-heading {
+  margin: 0;
+  font-weight: 700;
+}
+
+.prompt-hint {
+  margin: 4px 0 0;
+  color: #516071;
+  font-size: 0.88rem;
+}
+
+.prompt-copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #d5deea;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #243041;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.prompt-copy-button:hover {
+  border-color: #b8c8da;
+  background: #f7fbff;
+  transform: translateY(-1px);
+}
+
+.prompt-copy-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
 .tutorial-block {
   margin-top: 18px;
 }
@@ -639,6 +688,13 @@ body.modal-open {
   white-space: pre-wrap;
   font: inherit;
   line-height: 1.65;
+}
+
+.prompt-copy-feedback {
+  min-height: 20px;
+  margin: -6px 0 14px;
+  color: #0b6dca;
+  font-size: 0.84rem;
 }
 
 .persona-card {
@@ -778,6 +834,16 @@ body.modal-open {
   .survey-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .prompt-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .prompt-copy-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .results-header {

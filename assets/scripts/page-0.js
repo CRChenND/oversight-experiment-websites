@@ -1,3 +1,5 @@
+import { setupInstructionReminder } from "./instruction-reminder.js";
+
 const postLaunchButton = document.querySelector("#post-launch-button");
 const composerModal = document.querySelector("#composer-modal");
 const composerForm = document.querySelector("#composer-form");
@@ -224,10 +226,7 @@ async function setupInstructionModal() {
     renderStep();
   });
 
-  startButton.addEventListener("click", () => {
-    instructionModal.hidden = true;
-    syncBodyScroll();
-  });
+  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
   instructionModal.hidden = false;
   renderStep();
