@@ -4,7 +4,6 @@ import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 
 const searchForm = document.querySelector("#search-form");
-const searchQueryInput = document.querySelector("#search-query");
 const searchLocationInput = document.querySelector("#search-location");
 const searchStatus = document.querySelector("#search-status");
 const initialResultsView = document.querySelector("#results-view-initial");
@@ -113,19 +112,13 @@ function disableIndexNavigation() {
 }
 
 function setupSearchFlow() {
-  if (!searchForm || !searchQueryInput || !searchLocationInput || !searchStatus) {
+  if (!searchForm || !searchLocationInput || !searchStatus) {
     return;
   }
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    const query = searchQueryInput.value.trim();
     const location = searchLocationInput.value.trim().toLowerCase().replace(/\s+/g, " ");
-
-    if (!query.toLowerCase().includes("takeout")) {
-      searchStatus.textContent = 'The search text must include "takeout".';
-      return;
-    }
 
     if (location !== "westminster, ca") {
       searchStatus.textContent = 'Change the location to "Westminster, CA" before searching.';

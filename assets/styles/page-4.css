@@ -51,7 +51,7 @@ input {
 
 .yelp-search {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.8fr) 48px;
+  grid-template-columns: minmax(220px, 1fr) 48px;
   flex: 1;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
@@ -63,10 +63,6 @@ input {
   min-height: 42px;
   padding: 0 14px;
   border: 0;
-}
-
-.yelp-search input + input {
-  border-left: 1px solid #e2e2e2;
 }
 
 .yelp-search button {
