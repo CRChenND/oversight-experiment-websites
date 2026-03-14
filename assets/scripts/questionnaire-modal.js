@@ -1,5 +1,7 @@
 import { saveQuestionnaireResponse } from "./firebase-client.js";
 
+const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
+
 const POST_TASK_SURVEY_ITEMS = [
   {
     kind: "section",
@@ -290,6 +292,16 @@ const FINAL_QUESTIONNAIRE_ITEMS = [
     prompt: "Would you be willing to participate in a follow-up 30-minute interview to discuss your oversight behaviors during this study?",
     options: ["Yes", "No"],
   },
+  {
+    kind: "email",
+    id: "follow_up_email",
+    prompt: "Please enter your email address so we can contact you about the follow-up interview.",
+    placeholder: "name@example.com",
+    condition: {
+      questionId: "follow_up_interview",
+      equals: "Yes",
+    },
+  },
 ];
 
 function createScaleQuestion(question) {
@@ -387,6 +399,73 @@ function createChoiceQuestion(question) {
   return wrapper;
 }
 
+function createTextQuestion(question) {
+  const wrapper = document.createElement("fieldset");
+  wrapper.className = "survey-question";
+  wrapper.dataset.questionId = question.id;
+
+  const legend = document.createElement("legend");
+  legend.className = "survey-question-title";
+  legend.textContent = question.prompt;
+
+  const input = document.createElement("input");
+  input.className = "survey-text-input";
+  input.type = question.kind === "email" ? "email" : "text";
+  input.name = question.id;
+  input.placeholder = question.placeholder ?? "";
+  input.autocomplete = question.kind === "email" ? "email" : "on";
+
+  wrapper.append(legend, input);
+  return wrapper;
+}
+
+function getQuestionResponse(question, formBody) {
+  if (question.kind === "multiChoice") {
+    return [...formBody.querySelectorAll(`input[name="${question.id}"]:checked`)].map((input) => input.value);
+  }
+
+  if (question.kind === "choice" || question.kind === "scale") {
+    return formBody.querySelector(`input[name="${question.id}"]:checked`)?.value ?? null;
+  }
+
+  if (question.kind === "text" || question.kind === "email") {
+    return formBody.querySelector(`input[name="${question.id}"]`)?.value.trim() ?? "";
+  }
+
+  return null;
+}
+
+function isQuestionVisible(question, formBody) {
+  if (!question.condition) {
+    return true;
+  }
+
+  return getQuestionResponse({ kind: "choice", id: question.condition.questionId }, formBody) === question.condition.equals;
+}
+
+function syncConditionalQuestions(questions, formBody) {
+  questions.forEach((question) => {
+    if (!question.id) {
+      return;
+    }
+
+    const wrapper = formBody.querySelector(`[data-question-id="${question.id}"]`);
+    if (!wrapper) {
+      return;
+    }
+
+    const visible = isQuestionVisible(question, formBody);
+    wrapper.hidden = !visible;
+    wrapper.querySelectorAll("input").forEach((input) => {
+      input.disabled = !visible;
+      if (!visible) {
+        input.checked = false;
+        input.value = input.type === "checkbox" || input.type === "radio" ? input.value : "";
+      }
+    });
+  });
+}
+
 function buildQuestionnaire(config, formBody) {
   const fragment = document.createDocumentFragment();
 
@@ -396,10 +475,79 @@ function buildQuestionnaire(config, formBody) {
       return;
     }
 
-    fragment.append(item.kind === "scale" ? createScaleQuestion(item) : createChoiceQuestion(item));
+    if (item.kind === "scale") {
+      fragment.append(createScaleQuestion(item));
+      return;
+    }
+
+    if (item.kind === "choice" || item.kind === "multiChoice") {
+      fragment.append(createChoiceQuestion(item));
+      return;
+    }
+
+    if (item.kind === "text" || item.kind === "email") {
+      fragment.append(createTextQuestion(item));
+    }
   });
 
   formBody.replaceChildren(fragment);
+}
+
+function splitQuestionsIntoPages(questions) {
+  const pages = [];
+  let currentPage = [];
+
+  questions.forEach((item) => {
+    if (item.kind === "section") {
+      if (currentPage.length > 0) {
+        pages.push(currentPage);
+      }
+      currentPage = [item];
+      return;
+    }
+
+    if (currentPage.length === 0) {
+      currentPage = [item];
+      return;
+    }
+
+    currentPage.push(item);
+  });
+
+  if (currentPage.length > 0) {
+    pages.push(currentPage);
+  }
+
+  return pages.length > 0 ? pages : [questions];
+}
+
+function applyResponsesToForm(questions, responses, formBody) {
+  questions.forEach((question) => {
+    if (!question.id || !(question.id in responses)) {
+      return;
+    }
+
+    if (question.kind === "multiChoice") {
+      const values = Array.isArray(responses[question.id]) ? responses[question.id] : [];
+      formBody.querySelectorAll(`input[name="${question.id}"]`).forEach((input) => {
+        input.checked = values.includes(input.value);
+      });
+      return;
+    }
+
+    if (question.kind === "choice" || question.kind === "scale") {
+      const input = formBody.querySelector(`input[name="${question.id}"][value="${CSS.escape(String(responses[question.id]))}"]`);
+      if (input) {
+        input.checked = true;
+      }
+      return;
+    }
+
+    const input = formBody.querySelector(`input[name="${question.id}"]`);
+    if (input) {
+      input.value = responses[question.id];
+    }
+  });
 }
 
 function collectResponses(questions, formBody) {
@@ -411,10 +559,12 @@ function collectResponses(questions, formBody) {
       return;
     }
 
+    if (!isQuestionVisible(question, formBody)) {
+      return;
+    }
+
     if (question.kind === "multiChoice") {
-      const selectedOptions = [...formBody.querySelectorAll(`input[name="${question.id}"]:checked`)].map(
-        (input) => input.value,
-      );
+      const selectedOptions = getQuestionResponse(question, formBody);
       if (selectedOptions.length === 0) {
         isComplete = false;
         return;
@@ -423,15 +573,54 @@ function collectResponses(questions, formBody) {
       return;
     }
 
-    const selected = formBody.querySelector(`input[name="${question.id}"]:checked`);
-    if (!selected) {
+    if (question.kind === "choice" || question.kind === "scale") {
+      const selected = getQuestionResponse(question, formBody);
+      if (!selected) {
+        isComplete = false;
+        return;
+      }
+      responses[question.id] = selected;
+      return;
+    }
+
+    const value = getQuestionResponse(question, formBody);
+    if (!value) {
       isComplete = false;
       return;
     }
-    responses[question.id] = selected.value;
+    responses[question.id] = value;
   });
 
   return { isComplete, responses };
+}
+
+function collectStoredResponses(questions, responses) {
+  let isComplete = true;
+  const collected = {};
+
+  questions.forEach((question) => {
+    if (!question.id) {
+      return;
+    }
+
+    if (question.condition) {
+      const triggerValue = responses[question.condition.questionId];
+      if (triggerValue !== question.condition.equals) {
+        return;
+      }
+    }
+
+    const value = responses[question.id];
+    const isEmptyArray = Array.isArray(value) && value.length === 0;
+    if (value == null || value === "" || isEmptyArray) {
+      isComplete = false;
+      return;
+    }
+
+    collected[question.id] = value;
+  });
+
+  return { isComplete, responses: collected };
 }
 
 export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisibilityChange }) {
@@ -468,6 +657,28 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   let activeConfig = null;
   let activeSequence = [];
   let activeSequenceIndex = 0;
+  let activePageIndex = 0;
+  let activePages = [];
+  let activeResponses = {};
+
+  const getActiveQuestions = () => activePages[activePageIndex] ?? activeConfig?.questions ?? [];
+
+  const storeVisibleResponses = () => {
+    if (!activeConfig) {
+      return;
+    }
+
+    const visibleQuestions = getActiveQuestions().filter((question) => question.id && isQuestionVisible(question, formBody));
+    const { responses } = collectResponses(visibleQuestions, formBody);
+    activeResponses = { ...activeResponses, ...responses };
+
+    getActiveQuestions().forEach((question) => {
+      if (!question.id || isQuestionVisible(question, formBody)) {
+        return;
+      }
+      delete activeResponses[question.id];
+    });
+  };
 
   const syncContinueState = () => {
     if (!activeConfig) {
@@ -475,7 +686,9 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
       return;
     }
 
-    const { isComplete } = collectResponses(activeConfig.questions, formBody);
+    syncConditionalQuestions(getActiveQuestions(), formBody);
+    storeVisibleResponses();
+    const { isComplete } = collectResponses(getActiveQuestions(), formBody);
     continueButton.disabled = !isComplete;
     if (isComplete) {
       status.textContent = "";
@@ -559,14 +772,41 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   };
 
   const submitQuestionnaire = async () => {
+    if (activeConfig?.key === "completion") {
+      window.location.href = new URL("../../", window.location.href).toString();
+      return;
+    }
+
     if (!activeConfig) {
       status.textContent = "Questionnaire configuration is unavailable.";
       return;
     }
 
     const navigationContext = getNavigationContext?.();
-    const { isComplete, responses } = collectResponses(activeConfig.questions, formBody);
+    syncConditionalQuestions(getActiveQuestions(), formBody);
+    storeVisibleResponses();
+
+    const currentPageQuestions = getActiveQuestions();
+    const { isComplete } = collectResponses(currentPageQuestions, formBody);
     if (!isComplete) {
+      status.textContent = "Please answer every question before continuing.";
+      continueButton.disabled = true;
+      return;
+    }
+
+    const hasNextPage = activePageIndex < activePages.length - 1;
+    if (hasNextPage) {
+      activePageIndex += 1;
+      renderCurrentPage();
+      return;
+    }
+
+    const { isComplete: questionnaireComplete, responses } = collectStoredResponses(
+      activeConfig.questions,
+      activeResponses,
+    );
+
+    if (!questionnaireComplete) {
       status.textContent = "Please answer every question before continuing.";
       continueButton.disabled = true;
       return;
@@ -592,8 +832,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     }
 
     if (navigationContext?.isComplete) {
-      status.textContent = "Final questionnaire submitted. Returning to the PID entry page...";
-      window.location.href = new URL("../../", window.location.href).toString();
+      renderCompletionScreen();
       return;
     }
 
@@ -605,20 +844,68 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     window.location.href = navigationContext.nextUrl;
   };
 
-  const renderQuestionnaire = (config) => {
-    activeConfig = config;
-    kicker.textContent = config.kicker;
-    title.textContent = config.title;
-    copy.textContent = config.copy;
+  const renderCurrentPage = () => {
+    const pageLabel =
+      activeConfig.paginateBySection && activePages.length > 1
+        ? `Section ${activePageIndex + 1} of ${activePages.length}`
+        : "";
+
+    const copyParts = [activeConfig.copy, pageLabel].filter(Boolean);
+    kicker.textContent = activeConfig.kicker;
+    title.textContent = activeConfig.title;
+    copy.textContent = copyParts.join(" ");
+    form.hidden = false;
     cancelButton.hidden = false;
-    continueButton.textContent = config.continueLabel;
+    cancelButton.textContent = "Back";
+    continueButton.textContent =
+      activePageIndex < activePages.length - 1 ? "Next" : activeConfig.continueLabel;
     status.textContent = "";
     form.reset();
-    buildQuestionnaire(config, formBody);
+    buildQuestionnaire({ questions: getActiveQuestions() }, formBody);
+    applyResponsesToForm(getActiveQuestions(), activeResponses, formBody);
+    syncConditionalQuestions(getActiveQuestions(), formBody);
     syncContinueState();
   };
 
+  const renderQuestionnaire = (config) => {
+    activeConfig = config;
+    activeResponses = {};
+    activePages = config.paginateBySection ? splitQuestionsIntoPages(config.questions) : [config.questions];
+    activePageIndex = 0;
+    renderCurrentPage();
+  };
+
+  const renderCompletionScreen = () => {
+    activeConfig = { key: "completion", questions: [] };
+    kicker.textContent = "Study Complete";
+    title.textContent = "Final questionnaire submitted";
+    copy.textContent = "Use the Prolific completion code below to claim your compensation on Prolific.";
+    form.hidden = false;
+    formBody.replaceChildren();
+
+    const completionCard = document.createElement("section");
+    completionCard.className = "survey-completion-card";
+    completionCard.innerHTML = `
+      <p class="survey-completion-label">Prolific Completion Code</p>
+      <p class="survey-completion-code">${PROLIFIC_COMPLETION_CODE}</p>
+      <p class="survey-completion-copy">Please copy this code and submit it on Prolific to receive compensation.</p>
+    `;
+
+    formBody.append(completionCard);
+    cancelButton.hidden = true;
+    continueButton.disabled = false;
+    continueButton.textContent = "End experiment";
+    status.textContent = "";
+  };
+
   cancelButton.addEventListener("click", () => {
+    if (activeConfig && activePageIndex > 0) {
+      storeVisibleResponses();
+      activePageIndex -= 1;
+      renderCurrentPage();
+      return;
+    }
+
     closeQuestionnaireModal();
     if (typeof onCancel === "function") {
       onCancel();
@@ -629,6 +916,10 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
 
   form.addEventListener("change", (event) => {
     syncExclusiveChoiceState(event.target);
+    syncContinueState();
+  });
+
+  form.addEventListener("input", () => {
     syncContinueState();
   });
 
@@ -651,6 +942,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
               copy: "Please answer every question before continuing to the demographic questionnaire.",
               continueLabel: "Continue to demographic survey",
               questions: POST_TASK_SURVEY_ITEMS,
+              paginateBySection: true,
             },
             {
               key: "finalQuestionnaire",
@@ -669,6 +961,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
               copy: "Please answer every question before continuing.",
               continueLabel: "Continue to next step",
               questions: POST_TASK_SURVEY_ITEMS,
+              paginateBySection: true,
             },
           ];
       activeSequenceIndex = 0;
