@@ -1,3 +1,4 @@
+import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 
 const postLaunchButton = document.querySelector("#post-launch-button");
@@ -231,9 +232,8 @@ async function setupInstructionModal() {
 
   startButton.addEventListener("click", () => {
     clearPromptCopyFeedback();
-    instructionModal.hidden = true;
-    syncBodyScroll();
   });
+  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
   clearPromptCopyFeedback();
   instructionModal.hidden = false;
