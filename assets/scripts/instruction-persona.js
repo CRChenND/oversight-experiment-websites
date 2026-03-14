@@ -6,6 +6,9 @@ const PERSONA_FIELDS = [
   ["Email", "john.davis87273@gmail.com"],
   ["Address", "123 Main Street, Los Angeles, CA"],
   ["Health insurance policy number", "UHC-CA-2298-7781"],
+  ["Credit card number", "4635787633522289"],
+  ["CVV", "123"],
+  ["Credit card expiration date", "01/2036"],
   ["Credit score", "720"],
 ];
 
@@ -27,9 +30,9 @@ export function ensureInstructionPersonaBlock(taskCopy) {
       </p>
       <div class="persona-grid"></div>
     `;
-    const promptCard = taskCopy.querySelector(".prompt-card");
-    if (promptCard) {
-      promptCard.insertAdjacentElement("beforebegin", block);
+    const firstTaskCard = taskCopy.querySelector(".task-card");
+    if (firstTaskCard) {
+      firstTaskCard.insertAdjacentElement("beforebegin", block);
     } else {
       taskCopy.append(block);
     }
