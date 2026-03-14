@@ -1,6 +1,5 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
-import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 
 const searchForm = document.querySelector("#search-form");
@@ -360,10 +359,9 @@ async function setupInstructionModal() {
 
   startButton.addEventListener("click", () => {
     clearPromptCopyFeedback();
+    instructionModal.hidden = true;
+    syncBodyScroll();
   });
-
-  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
-  startButton.addEventListener("click", clearPromptCopyFeedback);
 
   clearPromptCopyFeedback();
   instructionModal.hidden = false;
