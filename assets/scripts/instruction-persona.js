@@ -12,11 +12,14 @@ const PERSONA_FIELDS = [
   ["Credit card expiration date", "01/2036"],
   ["Credit score", "720"],
 ];
+const PERSONA_STYLE_ID = "instruction-persona-compact-style";
 
 export function ensureInstructionPersonaBlock(taskCopy) {
   if (!taskCopy) {
     return;
   }
+
+  ensurePersonaStyles();
 
   let block = taskCopy.querySelector('[data-persona-block="true"]');
   if (!block) {
@@ -26,8 +29,7 @@ export function ensureInstructionPersonaBlock(taskCopy) {
     block.innerHTML = `
       <p class="task-card-label">Assigned Persona</p>
       <p class="persona-intro">
-        For this task, you should act as the following user. The web agent should also use this
-        persona's information while completing the task.
+        Use the following user information for this task.
       </p>
       <div class="persona-grid"></div>
     `;
@@ -46,12 +48,74 @@ export function ensureInstructionPersonaBlock(taskCopy) {
 
   grid.replaceChildren(
     ...PERSONA_FIELDS.map(([label, value]) => {
-      const row = document.createElement("p");
+      const row = document.createElement("div");
       row.className = "persona-line";
       row.innerHTML = `<strong>${escapeHtml(label)}</strong><span>${escapeHtml(value)}</span>`;
       return row;
     }),
   );
+}
+
+function ensurePersonaStyles() {
+  if (document.getElementById(PERSONA_STYLE_ID)) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = PERSONA_STYLE_ID;
+  style.textContent = `
+    .persona-card {
+      margin-top: 12px;
+    }
+
+    .persona-intro {
+      margin: 0 0 10px;
+      color: #425466;
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .persona-line {
+      display: grid;
+      gap: 3px;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #dbe5f0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .persona-line:first-child {
+      padding-top: 10px;
+      border-top: 1px solid #dbe5f0;
+    }
+
+    .persona-line strong {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #0b6dca;
+    }
+
+    .persona-line span {
+      color: #243041;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    @media (max-width: 720px) {
+      .persona-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  document.head.append(style);
 }
 
 function escapeHtml(value) {
