@@ -19,6 +19,8 @@ const tutorialFrame = document.querySelector("#tutorial-frame");
 const tutorialCopy = document.querySelector("#instruction-copy");
 const taskCopy = document.querySelector("#instruction-task-copy");
 const statusMessage = document.querySelector("#instruction-status");
+const promptCopyButton = document.querySelector("#instruction-copy-prompt");
+const promptCopyFeedback = document.querySelector("#instruction-copy-feedback");
 const previousButton = document.querySelector("#instruction-prev");
 const nextButton = document.querySelector("#instruction-next");
 const startButton = document.querySelector("#instruction-start");
@@ -218,19 +220,26 @@ async function setupInstructionModal() {
 
   previousButton.addEventListener("click", () => {
     currentInstructionPage = 1;
+    clearPromptCopyFeedback();
     renderStep();
   });
 
   nextButton.addEventListener("click", () => {
     currentInstructionPage = 2;
+    clearPromptCopyFeedback();
     renderStep();
   });
 
   setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
 
+  clearPromptCopyFeedback();
   instructionModal.hidden = false;
   renderStep();
   syncBodyScroll();
+
+  if (promptCopyButton) {
+    promptCopyButton.addEventListener("click", handlePromptCopy);
+  }
 }
 
 function applyInstructionContent(content, context) {
@@ -254,7 +263,37 @@ function buildStatusMessage({ pid, fallbackPid }) {
     return `Preview mode: no pid provided, using the first CSV row (${fallbackPid}) and the shared page-0 warm-up.`;
   }
 
-  return `Participant ${pid} will begin the shared warm-up first, then continue to the assigned step 1 page.`;
+  return "";
+}
+
+async function handlePromptCopy() {
+  const promptNode = document.querySelector('[data-field="agent-prompt"]');
+  const promptText = promptNode?.textContent?.trim();
+
+  if (!promptText) {
+    setPromptCopyFeedback("Prompt unavailable.");
+    return;
+  }
+
+  try {
+    if (!navigator.clipboard?.writeText) {
+      throw new Error("Clipboard API unavailable");
+    }
+    await navigator.clipboard.writeText(promptText);
+    setPromptCopyFeedback("Prompt copied. Paste it directly into the plugin input box.");
+  } catch (_error) {
+    setPromptCopyFeedback("Copy failed. Please select the prompt manually.");
+  }
+}
+
+function setPromptCopyFeedback(message) {
+  if (promptCopyFeedback) {
+    promptCopyFeedback.textContent = message;
+  }
+}
+
+function clearPromptCopyFeedback() {
+  setPromptCopyFeedback("");
 }
 
 function buildTutorialNode(value) {
