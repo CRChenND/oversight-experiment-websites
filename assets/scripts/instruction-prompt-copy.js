@@ -70,10 +70,10 @@ function ensurePromptCopyStyles() {
     .instruction-prompt-copy-button {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
-      min-height: 38px;
-      padding: 0 14px;
+      min-height: 34px;
+      padding: 0 11px;
       border: 1px solid #d5deea;
       border-radius: 999px;
       background: #ffffff;
@@ -99,10 +99,13 @@ function ensurePromptCopyStyles() {
 
     .prompt-card {
       position: relative;
+      overflow: visible;
     }
 
     .instruction-prompt-toolbar + pre {
       padding-right: 148px;
+      overflow: visible;
+      max-height: none;
     }
 
     .instruction-prompt-copy-feedback {
