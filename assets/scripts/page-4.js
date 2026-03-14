@@ -180,6 +180,17 @@ function buildResultCard(item, enableOrder) {
 
   const title = document.createElement("h2");
   title.textContent = item.name;
+  if (enableOrder) {
+    title.tabIndex = 0;
+    title.style.cursor = "pointer";
+    title.addEventListener("click", openSurveyModal);
+    title.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openSurveyModal();
+      }
+    });
+  }
 
   const ratingLine = document.createElement("p");
   ratingLine.className = "rating-line";
