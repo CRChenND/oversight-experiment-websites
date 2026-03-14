@@ -58,11 +58,13 @@ function ensurePromptCopyStyles() {
   style.id = PROMPT_COPY_STYLE_ID;
   style.textContent = `
     .instruction-prompt-toolbar {
+      position: absolute;
+      top: 14px;
+      right: 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
-      gap: 16px;
-      margin-bottom: 10px;
+      margin: 0;
     }
 
     .instruction-prompt-copy-button {
@@ -95,6 +97,14 @@ function ensurePromptCopyStyles() {
       fill: currentColor;
     }
 
+    .prompt-card {
+      position: relative;
+    }
+
+    .instruction-prompt-toolbar + pre {
+      padding-right: 148px;
+    }
+
     .instruction-prompt-copy-feedback {
       min-height: 20px;
       margin: -6px 0 14px;
@@ -104,13 +114,17 @@ function ensurePromptCopyStyles() {
 
     @media (max-width: 720px) {
       .instruction-prompt-toolbar {
-        flex-direction: column;
-        align-items: stretch;
+        position: static;
+        margin-bottom: 10px;
       }
 
       .instruction-prompt-copy-button {
         width: 100%;
         justify-content: center;
+      }
+
+      .instruction-prompt-toolbar + pre {
+        padding-right: 0;
       }
     }
   `;
