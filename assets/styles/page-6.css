@@ -529,13 +529,13 @@ button, input, select, textarea { font: inherit; }
 body.modal-open { overflow: hidden; }
 
 .review-shell {
-  width: min(100%, 1080px);
-  max-height: 94vh;
+  width: min(100%, 810px);
+  max-height: 70.5vh;
   overflow: hidden;
 }
 
 .review-form {
-  max-height: 94vh;
+  max-height: 70.5vh;
   overflow-y: auto;
   padding: 22px 28px 22px;
   border-radius: 10px;
