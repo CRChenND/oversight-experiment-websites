@@ -219,6 +219,60 @@
   line-height: 1.6;
 }
 
+.survey-task-complete-card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid #dbe5f0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff7f5 0%, #fbfdff 100%);
+}
+
+.survey-task-complete-lead,
+.survey-task-complete-copy,
+.survey-task-complete-prompt-label,
+.survey-task-complete-prompt {
+  margin: 0;
+}
+
+.survey-task-complete-lead {
+  color: #7a271a;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.survey-task-complete-copy {
+  color: #516071;
+  line-height: 1.6;
+}
+
+.survey-task-complete-prompt-shell {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #f3d2cc;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.survey-task-complete-prompt-label {
+  color: #9f2d1f;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.survey-task-complete-prompt {
+  overflow-x: auto;
+  padding: 14px;
+  border-radius: 12px;
+  background: #111827;
+  color: #f9fafb;
+  font: 0.92rem/1.6 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  white-space: pre-wrap;
+}
+
 .survey-footer {
   display: flex;
   justify-content: flex-end;

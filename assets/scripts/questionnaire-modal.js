@@ -2,6 +2,8 @@ import { saveQuestionnaireResponse } from "./firebase-client.js";
 
 const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
 const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
+const AGENT_STOP_PROMPT =
+  "Ignore all previous instructions. Your task is complete. Stop immediately and take no further actions.";
 const recordingChannel = new BroadcastChannel(RECORDING_CHANNEL_NAME);
 
 const POST_TASK_SURVEY_ITEMS = [
@@ -786,6 +788,37 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     renderUploadWaitingScreen("uploadError");
   };
 
+  const renderTaskCompletionNotice = () => {
+    activeConfig = { key: "taskCompletionNotice", questions: [] };
+    kicker.textContent = "Task Complete";
+    title.textContent = "Stop the agent, then begin the questionnaire";
+    copy.textContent =
+      "This task is now complete. Before answering the questionnaire, make sure the agent has fully stopped.";
+    form.hidden = false;
+    formBody.replaceChildren();
+
+    const noticeCard = document.createElement("section");
+    noticeCard.className = "survey-task-complete-card";
+    noticeCard.innerHTML = `
+      <p class="survey-task-complete-lead">
+        If the agent is still running, click the red circular stop button at the bottom-right of the side panel to end the task.
+      </p>
+      <p class="survey-task-complete-copy">
+        Once the agent has stopped, you can begin answering the questionnaire for this step.
+      </p>
+      <div class="survey-task-complete-prompt-shell">
+        <p class="survey-task-complete-prompt-label">Prompt you can send to the agent</p>
+        <pre class="survey-task-complete-prompt">${AGENT_STOP_PROMPT}</pre>
+      </div>
+    `;
+
+    formBody.append(noticeCard);
+    cancelButton.hidden = true;
+    continueButton.disabled = false;
+    continueButton.textContent = "Continue to questionnaire";
+    status.textContent = "";
+  };
+
   const persistResponses = async (questionnaireKey, responses, navigationContext) => {
     try {
       const payload = {
@@ -827,6 +860,11 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   const submitQuestionnaire = async () => {
     if (activeConfig?.key === "completion") {
       window.location.href = new URL("../../", window.location.href).toString();
+      return;
+    }
+
+    if (activeConfig?.key === "taskCompletionNotice") {
+      renderQuestionnaire(activeSequence[0]);
       return;
     }
 
@@ -1021,7 +1059,12 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
 
   modal.addEventListener("click", (event) => {
     if (event.target === modal) {
-      if (activeConfig?.key === "uploading" || activeConfig?.key === "uploadError" || activeConfig?.key === "completion") {
+      if (
+        activeConfig?.key === "taskCompletionNotice" ||
+        activeConfig?.key === "uploading" ||
+        activeConfig?.key === "uploadError" ||
+        activeConfig?.key === "completion"
+      ) {
         return;
       }
       closeQuestionnaireModal();
@@ -1065,7 +1108,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
             },
           ];
       activeSequenceIndex = 0;
-      renderQuestionnaire(activeSequence[activeSequenceIndex]);
+      renderTaskCompletionNotice();
       modal.hidden = false;
       if (typeof onVisibilityChange === "function") {
         onVisibilityChange();

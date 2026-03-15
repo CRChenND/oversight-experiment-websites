@@ -144,6 +144,7 @@
       </p>
       <p style="margin-top: 12px">
         When the browser asks what to share, please choose <strong>Share entire screen</strong>.
+        After sharing starts, you can immediately return to the practice task tab.
       </p>
 
       <form id="pid-form">
@@ -436,7 +437,7 @@
           recordingChannel = new BroadcastChannel(channelName);
           recordingChannel.addEventListener("message", handleChannelMessage);
 
-          setHelperState("Select the current experiment tab in the browser capture picker to begin recording.", "");
+          setHelperState("Select the current experiment tab in the browser capture picker to begin recording. After you choose Share entire screen, return to the practice task tab.", "");
 
           const stream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
@@ -463,7 +464,7 @@
 
           activeRecorder.addEventListener("stop", finalizeRecordingCapture);
           activeRecorder.start(1000);
-          setHelperState("Recording is active. Return to the experiment tab to continue.", "success");
+          setHelperState("Recording is active. Return to the practice task tab to continue.", "success");
         };
 
         function handleChannelMessage(event) {

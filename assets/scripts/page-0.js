@@ -1,5 +1,6 @@
 import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
+import { setupInstructionVideoGate } from "./instruction-video-gate.js";
 
 const postLaunchButton = document.querySelector("#post-launch-button");
 const composerModal = document.querySelector("#composer-modal");
@@ -194,6 +195,12 @@ async function setupInstructionModal() {
     fallbackPid: experimentRow.pid,
   });
   const { clearPromptCopyFeedback } = setupInstructionPromptCopy();
+  const tutorialGate = setupInstructionVideoGate({
+    instructionModal,
+    tutorialFrame,
+    nextButton,
+    storageKey: buildTutorialGateStorageKey(pid ?? experimentRow.pid, 0),
+  });
 
   let currentInstructionPage = 1;
   const renderStep = () => {
@@ -216,6 +223,7 @@ async function setupInstructionModal() {
     progressDots.forEach((dot, index) => {
       dot.classList.toggle("active", index === currentInstructionPage - 1);
     });
+    tutorialGate.sync();
   };
 
   previousButton.addEventListener("click", () => {
@@ -316,6 +324,10 @@ function buildNavigationContext(experimentRow, pid) {
     currentStep: 0,
     pid: effectivePid,
   };
+}
+
+function buildTutorialGateStorageKey(pid, step) {
+  return `oversight-study:tutorial-complete:${pid || "preview"}:${CURRENT_PAGE_ID}:step-${step}`;
 }
 
 function syncBodyScroll() {

@@ -2,6 +2,7 @@ import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
+import { setupInstructionVideoGate } from "./instruction-video-gate.js";
 
 const nameForm = document.querySelector("#name-form");
 const addressForm = document.querySelector("#address-form");
@@ -211,6 +212,12 @@ async function setupInstructionModal() {
   );
   navigationContext = buildNavigationContext(experimentRow, resolvedStep, pid);
   const { clearPromptCopyFeedback } = setupInstructionPromptCopy();
+  const tutorialGate = setupInstructionVideoGate({
+    instructionModal,
+    tutorialFrame,
+    nextButton,
+    storageKey: buildTutorialGateStorageKey(pid ?? experimentRow.pid, resolvedStep),
+  });
 
   let currentInstructionPage = 1;
 
@@ -234,6 +241,7 @@ async function setupInstructionModal() {
     progressDots.forEach((dot, index) => {
       dot.classList.toggle("active", index === currentInstructionPage - 1);
     });
+    tutorialGate.sync();
   };
 
   previousButton.addEventListener("click", () => {
@@ -456,4 +464,8 @@ function buildNavigationContext(experimentRow, currentStep, pid) {
     currentStep,
     pid: effectivePid,
   };
+}
+
+function buildTutorialGateStorageKey(pid, step) {
+  return `oversight-study:tutorial-complete:${pid || "preview"}:${CURRENT_PAGE_ID}:step-${step}`;
 }
