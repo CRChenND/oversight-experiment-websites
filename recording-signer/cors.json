@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://gui-agent-oversight.duckdns.org"],
+    "method": ["PUT"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]
