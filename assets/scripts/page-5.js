@@ -56,22 +56,6 @@ const events = [
   ["TUE", "MAR 24", "6:45PM", "Exhibition: San Francisco Giants vs. Sultanes De Monterrey"],
   ["WED", "MAR 25", "5:05PM", "San Francisco Giants vs. New York Yankees - Home Opener"],
   ["FRI", "MAR 27", "1:35PM", "San Francisco Giants vs. New York Yankees"],
-  ["SAT", "MAR 28", "4:15PM", "San Francisco Giants vs. New York Yankees"],
-  ["THU", "APR 2", "6:45PM", "San Francisco Giants vs. New York Mets"],
-  ["FRI", "APR 3", "7:15PM", "San Francisco Giants vs. New York Mets"],
-  ["SAT", "APR 4", "6:05PM", "San Francisco Giants vs. New York Mets"],
-  ["SUN", "APR 5", "1:05PM", "San Francisco Giants vs. New York Mets"],
-  ["MON", "APR 6", "6:45PM", "San Francisco Giants vs. Philadelphia Phillies"],
-  ["TUE", "APR 7", "6:45PM", "San Francisco Giants vs. Philadelphia Phillies"],
-  ["WED", "APR 8", "12:45PM", "San Francisco Giants vs. Philadelphia Phillies"],
-  ["TUE", "APR 21", "6:45PM", "San Francisco Giants vs. Los Angeles Dodgers"],
-  ["FRI", "APR 24", "7:15PM", "San Francisco Giants vs. Miami Marlins"],
-  ["SAT", "APR 25", "1:05PM", "San Francisco Giants vs. Miami Marlins"],
-  ["SUN", "APR 26", "1:05PM", "San Francisco Giants vs. Miami Marlins"],
-  ["MON", "MAY 4", "6:45PM", "San Francisco Giants vs. San Diego Padres"],
-  ["TUE", "MAY 5", "6:45PM", "San Francisco Giants vs. San Diego Padres"],
-  ["FRI", "MAY 8", "7:15PM", "San Francisco Giants vs. Pittsburgh Pirates"],
-  ["SUN", "MAY 10", "1:05PM", "San Francisco Giants vs. Pittsburgh Pirates"],
 ];
 const BASE_TICKET_PRICE = 13.09;
 const TICKET_PROTECTION_PRICE = 9.0;
