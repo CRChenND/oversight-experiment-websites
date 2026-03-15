@@ -1,0 +1,14 @@
+{
+  "name": "recording-signer",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.17.2"
+  }
+}

@@ -1,6 +1,8 @@
 import { saveQuestionnaireResponse } from "./firebase-client.js";
 
 const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
+const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
+const recordingChannel = new BroadcastChannel(RECORDING_CHANNEL_NAME);
 
 const POST_TASK_SURVEY_ITEMS = [
   {
@@ -660,6 +662,8 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   let activePageIndex = 0;
   let activePages = [];
   let activeResponses = {};
+  let activeUploadProgress = 0;
+  let activeUploadMessage = "Preparing recording upload...";
 
   const getActiveQuestions = () => activePages[activePageIndex] ?? activeConfig?.questions ?? [];
 
@@ -733,6 +737,49 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     }
   };
 
+  const renderUploadWaitingScreen = (mode = "uploading") => {
+    activeConfig = { key: mode, questions: [] };
+    kicker.textContent = "Study Complete";
+    title.textContent = mode === "uploadError" ? "Recording upload failed" : "Uploading recording";
+    copy.textContent = "Please keep this tab open. Your Prolific completion code will appear after the recording upload finishes.";
+    form.hidden = false;
+    formBody.replaceChildren();
+
+    const uploadCard = document.createElement("section");
+    uploadCard.className = "survey-upload-card";
+    uploadCard.innerHTML = `
+      <progress class="survey-upload-progress" max="100" value="${activeUploadProgress}"></progress>
+      <div class="survey-upload-meta">
+        <span>Upload progress</span>
+        <span>${activeUploadProgress}%</span>
+      </div>
+      <p class="survey-upload-message">${activeUploadMessage}</p>
+    `;
+
+    formBody.append(uploadCard);
+    cancelButton.hidden = true;
+    continueButton.disabled = mode !== "uploadError";
+    continueButton.textContent = mode === "uploadError" ? "Retry upload" : "Uploading...";
+    status.textContent = mode === "uploadError" ? activeUploadMessage : "";
+  };
+
+  const updateUploadWaitingScreen = ({ progress = activeUploadProgress, message = activeUploadMessage } = {}) => {
+    activeUploadProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+    activeUploadMessage = message || activeUploadMessage;
+
+    if (activeConfig?.key !== "uploading" && activeConfig?.key !== "uploadError") {
+      return;
+    }
+
+    renderUploadWaitingScreen(activeConfig?.key === "uploadError" ? "uploadError" : "uploading");
+  };
+
+  const renderUploadErrorScreen = (message) => {
+    activeUploadProgress = 0;
+    activeUploadMessage = message;
+    renderUploadWaitingScreen("uploadError");
+  };
+
   const persistResponses = async (questionnaireKey, responses, navigationContext) => {
     try {
       const payload = {
@@ -774,6 +821,18 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   const submitQuestionnaire = async () => {
     if (activeConfig?.key === "completion") {
       window.location.href = new URL("../../", window.location.href).toString();
+      return;
+    }
+
+    if (activeConfig?.key === "uploadError") {
+      const navigationContext = getNavigationContext?.();
+      activeUploadProgress = 0;
+      activeUploadMessage = "Retrying recording upload...";
+      renderUploadWaitingScreen();
+      recordingChannel.postMessage({
+        type: "retry-recording-upload",
+        pid: navigationContext?.pid ?? null,
+      });
       return;
     }
 
@@ -832,7 +891,13 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     }
 
     if (navigationContext?.isComplete) {
-      renderCompletionScreen();
+      activeUploadProgress = 0;
+      activeUploadMessage = "Preparing recording upload...";
+      renderUploadWaitingScreen();
+      recordingChannel.postMessage({
+        type: "recording-complete",
+        pid: navigationContext?.pid ?? null,
+      });
       return;
     }
 
@@ -898,6 +963,31 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     status.textContent = "";
   };
 
+  recordingChannel.addEventListener("message", (event) => {
+    const message = event.data ?? {};
+    const navigationContext = getNavigationContext?.();
+    if (!message.type || !navigationContext?.pid || message.pid !== navigationContext.pid) {
+      return;
+    }
+
+    if (message.type === "recording-upload-progress") {
+      updateUploadWaitingScreen({
+        progress: message.progress,
+        message: message.message,
+      });
+      return;
+    }
+
+    if (message.type === "recording-upload-success") {
+      renderCompletionScreen();
+      return;
+    }
+
+    if (message.type === "recording-upload-error") {
+      renderUploadErrorScreen(message.message || "Recording upload failed.");
+    }
+  });
+
   cancelButton.addEventListener("click", () => {
     if (activeConfig && activePageIndex > 0) {
       storeVisibleResponses();
@@ -925,6 +1015,9 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
 
   modal.addEventListener("click", (event) => {
     if (event.target === modal) {
+      if (activeConfig?.key === "uploading" || activeConfig?.key === "uploadError" || activeConfig?.key === "completion") {
+        return;
+      }
       closeQuestionnaireModal();
     }
   });
