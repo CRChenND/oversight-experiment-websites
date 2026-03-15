@@ -37,7 +37,7 @@ const POST_TASK_SURVEY_ITEMS = [
     kind: "scale",
     id: "performance",
     prompt: "How successful were you in overseeing the agent and ensuring it operated correctly?",
-    options: ["Perfect", "Very Good", "Good", "Moderate", "Poor", "Very Poor", "Failure"],
+    options: ["Failure", "Very Poor", "Poor", "Moderate", "Good", "Very Good","Perfect"],
   },
   {
     kind: "section",
@@ -113,6 +113,12 @@ const POST_TASK_SURVEY_ITEMS = [
     kind: "scale",
     id: "reacts_unpredictably",
     prompt: "The agent reacts unpredictably.",
+    options: ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"],
+  },
+  {
+    kind: "scale",
+    id: "reacts_unpredictably",
+    prompt: "I select 'Strongly agree' to confirm that I am carefully answering this survey.",
     options: ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"],
   },
   {
