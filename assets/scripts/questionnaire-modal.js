@@ -117,7 +117,7 @@ const POST_TASK_SURVEY_ITEMS = [
   },
   {
     kind: "scale",
-    id: "reacts_unpredictably",
+    id: "attention_check",
     prompt: "I select 'Strongly agree' to confirm that I am carefully answering this survey.",
     options: ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"],
   },
