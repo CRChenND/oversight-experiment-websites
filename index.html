@@ -103,6 +103,18 @@
         cursor: wait;
       }
 
+      .secondary-button {
+        width: 100%;
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      .secondary-button:hover {
+        background: #f8faff;
+      }
+
       .status {
         min-height: 24px;
         margin-top: 14px;
@@ -115,13 +127,6 @@
 
       .status.success {
         color: var(--accent-dark);
-      }
-
-      code {
-        padding: 0.15rem 0.35rem;
-        border-radius: 6px;
-        background: #f2f4f7;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       }
     </style>
   </head>
@@ -149,6 +154,9 @@
           required
         />
         <button id="submit-button" type="submit">Start</button>
+        <button id="popup-fallback-button" class="secondary-button" type="button" hidden>
+          Open Recording Window
+        </button>
         <p id="status" class="status" aria-live="polite"></p>
       </form>
     </main>
@@ -157,125 +165,51 @@
     <script>
       const CONFIG_PATH = "./data/experiment-config.csv";
       const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
+      const RECORDING_POPUP_NAME = "oversight-recording-helper";
       const recordingConfig = window.OVERSIGHT_RECORDING_CONFIG ?? {};
       const SIGNER_ENDPOINT = recordingConfig.signerEndpoint ?? "";
       const form = document.querySelector("#pid-form");
       const pidInput = document.querySelector("#pid-input");
       const submitButton = document.querySelector("#submit-button");
+      const popupFallbackButton = document.querySelector("#popup-fallback-button");
       const status = document.querySelector("#status");
-      const recordingChannel = new BroadcastChannel(RECORDING_CHANNEL_NAME);
 
       let configRows = null;
-      let activePid = null;
-      let activeRecorder = null;
-      let activeStream = null;
-      let activeChunks = [];
-      let activeRecordingBlob = null;
-      let activeRecordedAt = null;
-      let activeMimeType = "video/webm";
-      let uploadInFlight = false;
-      let pendingUploadAfterStop = false;
+      let pendingLaunchContext = null;
 
       initialize();
 
-      recordingChannel.addEventListener("message", (event) => {
-        const message = event.data ?? {};
-        if (!message.type) {
-          return;
-        }
-
-        if (message.type === "recording-complete") {
-          if (!activePid || (message.pid && message.pid !== activePid)) {
-            return;
-          }
-
-          pendingUploadAfterStop = true;
-          renderStatus("Experiment complete. Preparing recording upload...", "success");
-          stopActiveRecording();
-          return;
-        }
-
-        if (message.type === "retry-recording-upload") {
-          if (!activePid || message.pid !== activePid || uploadInFlight || !activeRecordingBlob) {
-            return;
-          }
-
-          uploadRecording().catch((error) => {
-            handleUploadError(error);
-          });
-        }
-      });
-
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-
-        const pid = pidInput.value.trim().toUpperCase();
-        if (!pid) {
-          renderStatus("Please enter a participant ID.", "error");
+        const launchContext = buildLaunchContext();
+        if (!launchContext) {
           return;
         }
 
-        if (!configRows) {
-          renderStatus("Participant configuration is still loading. Please try again.", "error");
+        await launchExperimentFlow(launchContext);
+      });
+
+      popupFallbackButton.addEventListener("click", async () => {
+        if (!pendingLaunchContext) {
+          renderStatus("There is no blocked recording window to retry.", "error");
+          popupFallbackButton.hidden = true;
           return;
         }
 
-        const match = configRows.find((row) => row.pid === pid);
-        if (!match) {
-          renderStatus(`No configuration found for PID "${pid}".`, "error");
-          return;
-        }
-
-        const firstPage = match.step_1_page;
-        if (!firstPage) {
-          renderStatus(`PID "${pid}" is missing a step_1_page value.`, "error");
-          return;
-        }
-
-        if ((activeRecorder && activeRecorder.state !== "inactive") || activePid) {
-          renderStatus("A recording or upload is already active in this tab.", "error");
-          return;
-        }
-
-        if (!SIGNER_ENDPOINT || SIGNER_ENDPOINT.includes("REPLACE_WITH_CLOUD_RUN_URL")) {
-          renderStatus("Recording upload is not configured yet. Set the Cloud Run signer URL first.", "error");
-          return;
-        }
-
-        const nextUrl = `./pages/page-0/?pid=${encodeURIComponent(pid)}&step=0`;
-        const experimentWindow = window.open(nextUrl, "_blank", "noopener");
-        if (!experimentWindow) {
-          renderStatus("The experiment tab was blocked. Please allow pop-ups and try again.", "error");
-          return;
-        }
-
-        setLoading(true, "Starting...");
-        renderStatus(
-          "Choose the experiment tab in the browser capture picker to begin recording.",
-          "",
-        );
-
-        try {
-          await startRecording(pid);
-          renderStatus(
-            `Recording started for ${pid}. Keep this tab open until the upload finishes and the Prolific code appears.`,
-            "success",
-          );
-        } catch (error) {
-          experimentWindow.close();
-          resetRecordingState();
-          renderStatus(`Unable to start recording: ${error.message}`, "error");
-          setLoading(false);
-        }
+        await launchExperimentFlow(pendingLaunchContext);
       });
 
       async function initialize() {
         setLoading(true, "Loading...");
+        popupFallbackButton.hidden = true;
         renderStatus("Loading participant configuration...", "");
 
         try {
           configRows = await loadCsvRows(CONFIG_PATH);
-          renderStatus("Ready. Submit a participant ID to open the experiment and begin recording.", "");
+          renderStatus(
+            "Ready. Submit a participant ID to start recording and open the practice task in this tab.",
+            "",
+          );
           setLoading(false);
         } catch (error) {
           renderStatus(`Unable to load participant config: ${error.message}`, "error");
@@ -283,255 +217,502 @@
         }
       }
 
-      async function startRecording(pid) {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true,
-        });
-
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack) {
-          videoTrack.addEventListener("ended", handleRecordingEndedByUser, { once: true });
+      function buildLaunchContext() {
+        const pid = pidInput.value.trim().toUpperCase();
+        if (!pid) {
+          renderStatus("Please enter a participant ID.", "error");
+          return null;
         }
 
-        activeMimeType = pickRecordingMimeType();
-        activeChunks = [];
-        activeRecordingBlob = null;
-        activeRecordedAt = null;
-        activePid = pid;
-        activeStream = stream;
-        activeRecorder = new MediaRecorder(stream, { mimeType: activeMimeType });
+        if (!configRows) {
+          renderStatus("Participant configuration is still loading. Please try again.", "error");
+          return null;
+        }
 
-        activeRecorder.addEventListener("dataavailable", (recordingEvent) => {
-          if (recordingEvent.data && recordingEvent.data.size > 0) {
-            activeChunks.push(recordingEvent.data);
-          }
-        });
+        const match = configRows.find((row) => row.pid === pid);
+        if (!match) {
+          renderStatus(`No configuration found for PID "${pid}".`, "error");
+          return null;
+        }
 
-        activeRecorder.addEventListener("stop", () => {
-          finalizeRecordingDownload();
-        });
+        const firstPage = match.step_1_page;
+        if (!firstPage) {
+          renderStatus(`PID "${pid}" is missing a step_1_page value.`, "error");
+          return null;
+        }
 
-        activeRecorder.start(1000);
+        if (!SIGNER_ENDPOINT || SIGNER_ENDPOINT.includes("REPLACE_WITH_CLOUD_RUN_URL")) {
+          renderStatus("Recording upload is not configured yet. Set the Cloud Run signer URL first.", "error");
+          return null;
+        }
+
+        return {
+          pid,
+          nextUrl: `./pages/page-0/?pid=${encodeURIComponent(pid)}&step=0`,
+        };
       }
 
-      function handleRecordingEndedByUser() {
-        if (!activePid) {
+      async function launchExperimentFlow({ pid, nextUrl }) {
+        const popup = openRecordingPopup();
+        if (!popup) {
+          pendingLaunchContext = { pid, nextUrl };
+          popupFallbackButton.hidden = false;
+          renderStatus(
+            "The recording window was blocked. Click \"Open Recording Window\" below after allowing pop-ups.",
+            "error",
+          );
           return;
         }
 
-        renderStatus("Screen sharing stopped before the experiment finished.", "error");
-        announceUploadState("recording-upload-error", {
-          message: "Recording stopped before the experiment finished. Restart the study to capture a complete video.",
-          progress: 0,
-        });
-        stopActiveRecording();
-      }
-
-      function stopActiveRecording() {
-        if (activeRecorder && activeRecorder.state !== "inactive") {
-          activeRecorder.stop();
-          return;
-        }
-
-        finalizeRecordingDownload();
-      }
-
-      function finalizeRecordingDownload() {
-        if (!activePid) {
-          setLoading(false);
-          return;
-        }
-
-        const recordingMimeType = activeMimeType;
-        cleanupCaptureSession();
-
-        activeRecordingBlob = new Blob(activeChunks, { type: recordingMimeType });
-        activeRecordedAt = buildTimestampLabel(new Date());
-        activeMimeType = recordingMimeType;
-        activeChunks = [];
-
-        if (!activeRecordingBlob.size) {
-          renderStatus("Recording ended, but no video data was captured.", "error");
-          announceUploadState("recording-upload-error", {
-            message: "No recording data was captured, so the upload could not start.",
-            progress: 0,
-          });
-          resetRecordingState();
-          setLoading(false);
-          return;
-        }
-
-        if (pendingUploadAfterStop) {
-          uploadRecording().catch((error) => {
-            handleUploadError(error);
-          });
-          return;
-        }
-
-        resetRecordingState();
-        setLoading(false);
-      }
-
-      function cleanupCaptureSession() {
-        if (activeStream) {
-          activeStream.getTracks().forEach((track) => {
-            track.stop();
-          });
-        }
-
-        activeRecorder = null;
-        activeStream = null;
-      }
-
-      function resetRecordingState() {
-        cleanupCaptureSession();
-        activePid = null;
-        activeChunks = [];
-        activeRecordingBlob = null;
-        activeRecordedAt = null;
-        activeMimeType = "video/webm";
-        uploadInFlight = false;
-        pendingUploadAfterStop = false;
-      }
-
-      function pickRecordingMimeType() {
-        const candidates = [
-          "video/webm;codecs=vp9,opus",
-          "video/webm;codecs=vp8,opus",
-          "video/webm",
-        ];
-
-        return candidates.find((candidate) => MediaRecorder.isTypeSupported(candidate)) || "video/webm";
-      }
-
-      async function uploadRecording() {
-        if (!activePid || !activeRecordingBlob || uploadInFlight) {
-          return;
-        }
-
-        uploadInFlight = true;
-        pendingUploadAfterStop = false;
-        announceUploadState("recording-upload-progress", {
-          progress: 5,
-          message: "Preparing recording upload...",
-        });
-        renderStatus(`Uploading recording for ${activePid}...`, "");
+        pendingLaunchContext = null;
+        popupFallbackButton.hidden = true;
+        setLoading(true, "Starting...");
+        renderStatus("Choose the current tab in the browser capture picker to begin recording.", "");
 
         try {
-          const signedUpload = await requestSignedUploadUrl();
-          announceUploadState("recording-upload-progress", {
-            progress: 15,
-            message: "Upload URL ready. Uploading recording...",
+          await waitForRecordingPopup(popup);
+          await popup.beginExperimentRecording({
+            pid,
+            signerEndpoint: SIGNER_ENDPOINT,
+            channelName: RECORDING_CHANNEL_NAME,
           });
-
-          await uploadBlobWithProgress(signedUpload.uploadUrl, activeRecordingBlob, activeMimeType);
-
-          announceUploadState("recording-upload-success", {
-            progress: 100,
-            objectName: signedUpload.objectName,
-            message: "Recording upload complete.",
-          });
-          renderStatus(`Upload complete for ${activePid}.`, "success");
-          resetRecordingState();
-          setLoading(false);
+          renderStatus(
+            `Recording started for ${pid}. This tab will now continue to the practice task.`,
+            "success",
+          );
+          window.location.href = nextUrl;
         } catch (error) {
-          handleUploadError(error);
+          if (!popup.closed) {
+            popup.close();
+          }
+          renderStatus(`Unable to start recording: ${error.message}`, "error");
+          setLoading(false);
         }
       }
 
-      async function requestSignedUploadUrl() {
-        const response = await fetch(SIGNER_ENDPOINT, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            participantId: activePid,
-            recordedAt: activeRecordedAt,
-            contentType: activeMimeType,
-          }),
-        });
-
-        let payload = {};
-        try {
-          payload = await response.json();
-        } catch {
-          payload = {};
+      function openRecordingPopup() {
+        const features = ["popup=yes", "width=420", "height=360", "resizable=yes", "scrollbars=yes"].join(",");
+        const popup = window.open("", RECORDING_POPUP_NAME, features);
+        if (!popup) {
+          return null;
         }
 
-        if (!response.ok || !payload.uploadUrl) {
-          throw new Error(payload.error || "Could not obtain a signed upload URL.");
-        }
-
-        return payload;
+        popup.document.open();
+        popup.document.write(buildRecordingPopupHtml());
+        popup.document.close();
+        popup.focus();
+        return popup;
       }
 
-      function uploadBlobWithProgress(uploadUrl, blob, contentType) {
-        return new Promise((resolve, reject) => {
-          const request = new XMLHttpRequest();
-          request.open("PUT", uploadUrl, true);
-          request.setRequestHeader("Content-Type", contentType);
+      async function waitForRecordingPopup(popup) {
+        for (let attempt = 0; attempt < 40; attempt += 1) {
+          if (!popup || popup.closed) {
+            throw new Error("The recording window was closed before recording could start.");
+          }
 
-          request.upload.addEventListener("progress", (event) => {
-            if (!event.lengthComputable) {
+          if (typeof popup.beginExperimentRecording === "function") {
+            return;
+          }
+
+          await new Promise((resolve) => {
+            window.setTimeout(resolve, 50);
+          });
+        }
+
+        throw new Error("The recording window did not initialize correctly.");
+      }
+
+      function buildRecordingPopupHtml() {
+        return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recording Helper</title>
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --panel: #ffffff;
+        --ink: #101828;
+        --muted: #667085;
+        --line: #d0d5dd;
+        --accent: #0b56d2;
+        --danger: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 18px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .status {
+        min-height: 22px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.success {
+        color: var(--accent);
+      }
+
+      .meta {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #f9fbff;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Recording Helper</h1>
+      <p id="helper-copy">Waiting to start recording.</p>
+      <p id="helper-status" class="status" aria-live="polite"></p>
+      <div class="meta">
+        Keep this small window open while the study runs. It will record, upload the video, and
+        stop automatically after the final questionnaire.
+      </div>
+    </main>
+    <script>
+      (() => {
+        const helperCopy = document.querySelector("#helper-copy");
+        const helperStatus = document.querySelector("#helper-status");
+
+        let recordingChannel = null;
+        let activePid = null;
+        let signerEndpoint = "";
+        let activeRecorder = null;
+        let activeStream = null;
+        let activeChunks = [];
+        let activeRecordingBlob = null;
+        let activeRecordedAt = null;
+        let activeMimeType = "video/webm";
+        let uploadInFlight = false;
+        let pendingUploadAfterStop = false;
+
+        window.beginExperimentRecording = async ({ pid, signerEndpoint: uploadSignerEndpoint, channelName }) => {
+          if (activePid) {
+            throw new Error("A recording is already in progress.");
+          }
+
+          activePid = pid;
+          signerEndpoint = uploadSignerEndpoint;
+          recordingChannel = new BroadcastChannel(channelName);
+          recordingChannel.addEventListener("message", handleChannelMessage);
+
+          setHelperState("Select the current experiment tab in the browser capture picker to begin recording.", "");
+
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: true,
+          });
+
+          const videoTrack = stream.getVideoTracks()[0];
+          if (videoTrack) {
+            videoTrack.addEventListener("ended", handleManualStop, { once: true });
+          }
+
+          activeMimeType = pickRecordingMimeType();
+          activeChunks = [];
+          activeRecordingBlob = null;
+          activeRecordedAt = null;
+          activeStream = stream;
+          activeRecorder = new MediaRecorder(stream, { mimeType: activeMimeType });
+
+          activeRecorder.addEventListener("dataavailable", (event) => {
+            if (event.data && event.data.size > 0) {
+              activeChunks.push(event.data);
+            }
+          });
+
+          activeRecorder.addEventListener("stop", finalizeRecordingCapture);
+          activeRecorder.start(1000);
+          setHelperState("Recording is active. Return to the experiment tab to continue.", "success");
+        };
+
+        function handleChannelMessage(event) {
+          const message = event.data ?? {};
+          if (!message.type || !activePid || message.pid !== activePid) {
+            return;
+          }
+
+          if (message.type === "recording-complete") {
+            pendingUploadAfterStop = true;
+            setHelperState("Experiment complete. Preparing recording upload...", "success");
+            stopActiveRecording();
+            return;
+          }
+
+          if (message.type === "retry-recording-upload") {
+            if (uploadInFlight || !activeRecordingBlob) {
               return;
             }
 
-            const uploadPercent = Math.min(100, Math.round((event.loaded / event.total) * 80) + 15);
-            announceUploadState("recording-upload-progress", {
-              progress: uploadPercent,
-              message: `Uploading recording... ${uploadPercent}%`,
+            uploadRecording().catch(handleUploadError);
+          }
+        }
+
+        function handleManualStop() {
+          if (!activePid) {
+            return;
+          }
+
+          announceUploadState("recording-upload-error", {
+            progress: 0,
+            message: "Recording stopped before the experiment finished. Restart the study to capture a complete video.",
+          });
+          setHelperState("Recording stopped before the experiment finished.", "error");
+          stopActiveRecording();
+        }
+
+        function stopActiveRecording() {
+          if (activeRecorder && activeRecorder.state !== "inactive") {
+            activeRecorder.stop();
+            return;
+          }
+
+          finalizeRecordingCapture();
+        }
+
+        function finalizeRecordingCapture() {
+          if (!activePid) {
+            return;
+          }
+
+          const recordingMimeType = activeMimeType;
+          cleanupCaptureSession();
+          activeRecordingBlob = new Blob(activeChunks, { type: recordingMimeType });
+          activeRecordedAt = buildTimestampLabel(new Date());
+          activeMimeType = recordingMimeType;
+          activeChunks = [];
+
+          if (!activeRecordingBlob.size) {
+            announceUploadState("recording-upload-error", {
+              progress: 0,
+              message: "No recording data was captured, so the upload could not start.",
             });
-          });
+            setHelperState("No recording data was captured.", "error");
+            resetRecordingState();
+            return;
+          }
 
-          request.addEventListener("load", () => {
-            if (request.status >= 200 && request.status < 300) {
-              resolve();
-              return;
-            }
+          if (pendingUploadAfterStop) {
+            uploadRecording().catch(handleUploadError);
+            return;
+          }
 
-            reject(new Error(`Upload failed with status ${request.status}.`));
-          });
-
-          request.addEventListener("error", () => {
-            reject(new Error("Upload request failed."));
-          });
-
-          request.send(blob);
-        });
-      }
-
-      function handleUploadError(error) {
-        uploadInFlight = false;
-        pendingUploadAfterStop = false;
-        const message = error instanceof Error ? error.message : "Unknown upload error.";
-        renderStatus(`Upload failed: ${message}`, "error");
-        announceUploadState("recording-upload-error", {
-          progress: 0,
-          message: `Upload failed: ${message}`,
-        });
-        setLoading(false);
-      }
-
-      function announceUploadState(type, details = {}) {
-        if (!activePid) {
-          return;
+          resetRecordingState();
         }
 
-        recordingChannel.postMessage({
-          type,
-          pid: activePid,
-          ...details,
-        });
-      }
+        function cleanupCaptureSession() {
+          if (activeStream) {
+            activeStream.getTracks().forEach((track) => track.stop());
+          }
 
-      function buildTimestampLabel(date) {
-        return date.toISOString().replace(/[:.]/g, "-");
+          activeRecorder = null;
+          activeStream = null;
+        }
+
+        function resetRecordingState() {
+          cleanupCaptureSession();
+          if (recordingChannel) {
+            recordingChannel.removeEventListener("message", handleChannelMessage);
+            recordingChannel.close();
+            recordingChannel = null;
+          }
+
+          activePid = null;
+          activeChunks = [];
+          activeRecordingBlob = null;
+          activeRecordedAt = null;
+          activeMimeType = "video/webm";
+          uploadInFlight = false;
+          pendingUploadAfterStop = false;
+          signerEndpoint = "";
+        }
+
+        function pickRecordingMimeType() {
+          const candidates = [
+            "video/webm;codecs=vp9,opus",
+            "video/webm;codecs=vp8,opus",
+            "video/webm",
+          ];
+
+          return candidates.find((candidate) => MediaRecorder.isTypeSupported(candidate)) || "video/webm";
+        }
+
+        async function uploadRecording() {
+          if (!activePid || !activeRecordingBlob || uploadInFlight) {
+            return;
+          }
+
+          uploadInFlight = true;
+          pendingUploadAfterStop = false;
+          announceUploadState("recording-upload-progress", {
+            progress: 5,
+            message: "Preparing recording upload...",
+          });
+          setHelperState("Preparing recording upload...", "");
+
+          try {
+            const signedUpload = await requestSignedUploadUrl();
+            announceUploadState("recording-upload-progress", {
+              progress: 15,
+              message: "Upload URL ready. Uploading recording...",
+            });
+            await uploadBlobWithProgress(signedUpload.uploadUrl, activeRecordingBlob, activeMimeType);
+            announceUploadState("recording-upload-success", {
+              progress: 100,
+              objectName: signedUpload.objectName,
+              message: "Recording upload complete.",
+            });
+            setHelperState("Recording upload complete. You can close this window.", "success");
+            resetRecordingState();
+          } catch (error) {
+            handleUploadError(error);
+          }
+        }
+
+        async function requestSignedUploadUrl() {
+          const response = await fetch(signerEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              participantId: activePid,
+              recordedAt: activeRecordedAt,
+              contentType: activeMimeType,
+            }),
+          });
+
+          let payload = {};
+          try {
+            payload = await response.json();
+          } catch {
+            payload = {};
+          }
+
+          if (!response.ok || !payload.uploadUrl) {
+            throw new Error(payload.error || "Could not obtain a signed upload URL.");
+          }
+
+          return payload;
+        }
+
+        function uploadBlobWithProgress(uploadUrl, blob, contentType) {
+          return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open("PUT", uploadUrl, true);
+            request.setRequestHeader("Content-Type", contentType);
+
+            request.upload.addEventListener("progress", (event) => {
+              if (!event.lengthComputable) {
+                return;
+              }
+
+              const uploadPercent = Math.min(100, Math.round((event.loaded / event.total) * 80) + 15);
+              announceUploadState("recording-upload-progress", {
+                progress: uploadPercent,
+                message: "Uploading recording... " + uploadPercent + "%",
+              });
+              setHelperState("Uploading recording... " + uploadPercent + "%", "");
+            });
+
+            request.addEventListener("load", () => {
+              if (request.status >= 200 && request.status < 300) {
+                resolve();
+                return;
+              }
+
+              reject(new Error("Upload failed with status " + request.status + "."));
+            });
+
+            request.addEventListener("error", () => {
+              reject(new Error("Upload request failed."));
+            });
+
+            request.send(blob);
+          });
+        }
+
+        function handleUploadError(error) {
+          uploadInFlight = false;
+          pendingUploadAfterStop = false;
+          const message = error instanceof Error ? error.message : "Unknown upload error.";
+          announceUploadState("recording-upload-error", {
+            progress: 0,
+            message: "Upload failed: " + message,
+          });
+          setHelperState("Upload failed: " + message, "error");
+        }
+
+        function announceUploadState(type, details = {}) {
+          if (!recordingChannel || !activePid) {
+            return;
+          }
+
+          recordingChannel.postMessage({
+            type,
+            pid: activePid,
+            ...details,
+          });
+        }
+
+        function buildTimestampLabel(date) {
+          return date.toISOString().replace(/[:.]/g, "-");
+        }
+
+        function setHelperState(message, tone) {
+          helperCopy.textContent = activePid
+            ? "Participant " + activePid + " recording is managed in this window."
+            : "Waiting to start recording.";
+          helperStatus.textContent = message;
+          helperStatus.className = tone ? "status " + tone : "status";
+        }
+      })();
+    <\/script>
+  </body>
+</html>`;
       }
 
       function setLoading(isLoading, label = "Start") {
         submitButton.disabled = isLoading;
+        popupFallbackButton.disabled = isLoading;
         submitButton.textContent = isLoading ? label : "Start";
       }
 
