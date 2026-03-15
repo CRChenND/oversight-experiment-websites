@@ -465,6 +465,7 @@
           activeRecorder.addEventListener("stop", finalizeRecordingCapture);
           activeRecorder.start(1000);
           setHelperState("Recording is active. Return to the experiment tab to continue.", "success");
+          collapseHelperWindow();
         };
 
         function handleChannelMessage(event) {
@@ -706,6 +707,28 @@
             : "Waiting to start recording.";
           helperStatus.textContent = message;
           helperStatus.className = tone ? "status " + tone : "status";
+        }
+
+        function collapseHelperWindow() {
+          try {
+            const collapsedWidth = 360;
+            const collapsedHeight = 140;
+            window.resizeTo(collapsedWidth, collapsedHeight);
+            if (typeof screen !== "undefined" && Number.isFinite(screen.availWidth)) {
+              window.moveTo(Math.max(0, screen.availWidth - collapsedWidth - 24), 24);
+            }
+          } catch {
+            // Ignore browsers that block scripted resize/move.
+          }
+
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.focus();
+            }
+            window.blur();
+          } catch {
+            // Ignore focus failures.
+          }
         }
       })();
     <\/script>

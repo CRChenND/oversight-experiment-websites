@@ -308,7 +308,7 @@ async function setupInstructionModal() {
   const renderStep = () => {
     const isTutorialStep = currentInstructionPage === 1;
     instructionStepLabel.textContent = isTutorialStep ? "Instruction Page 1 — Oversight Tutorial" : "Instruction Page 2 — Task Instructions";
-    instructionTitle.textContent = isTutorialStep ? `${currentMechanismName} Oversight Mechanism` : "Task Instructions";
+    instructionTitle.textContent = `${currentMechanismName} Oversight Mechanism`;
     if (tutorialCopy) tutorialCopy.hidden = !isTutorialStep;
     tutorialBlock.hidden = !isTutorialStep;
     taskCopy.hidden = isTutorialStep;

@@ -201,7 +201,7 @@ async function setupInstructionModal() {
       : "Instruction Page 2 — Task Instructions";
     instructionTitle.textContent = isTutorialStep
       ? `${currentMechanismName} Oversight Mechanism`
-      : "Task Instructions";
+      : `${currentMechanismName} Oversight Mechanism`;
     if (tutorialCopy) {
       tutorialCopy.hidden = !isTutorialStep;
     }
