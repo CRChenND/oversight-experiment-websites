@@ -142,6 +142,9 @@
         will start recording. Recording will stop automatically after all tasks and questionnaires
         are finished.
       </p>
+      <p style="margin-top: 12px">
+        When the browser asks what to share, please choose <strong>Share entire screen</strong>.
+      </p>
 
       <form id="pid-form">
         <label for="pid-input">Participant ID</label>
@@ -291,7 +294,7 @@
       }
 
       function openRecordingPopup() {
-        const features = ["popup=yes", "width=420", "height=360", "resizable=yes", "scrollbars=yes"].join(",");
+        const features = ["popup=yes", "width=840", "height=720", "resizable=yes", "scrollbars=yes"].join(",");
         const popup = window.open("", RECORDING_POPUP_NAME, features);
         if (!popup) {
           return null;
