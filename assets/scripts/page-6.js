@@ -11,7 +11,6 @@ const reviewBodyInput = document.querySelector("#review-body");
 const reviewTitleInput = document.querySelector("#review-title-input");
 const reviewPublicNameInput = document.querySelector("#review-public-name");
 const reviewStatus = document.querySelector("#review-status");
-const starButtons = Array.from(document.querySelectorAll(".star-button"));
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
@@ -39,7 +38,6 @@ const MECHANISM_MAP = {
 
 let navigationContext = null;
 let currentMechanismName = "Oversight";
-let selectedRating = 0;
 const questionnaireModal = setupQuestionnaireModal({
   getNavigationContext: () => navigationContext,
   onCancel: () => {
@@ -107,20 +105,8 @@ function setupReviewFlow() {
     }
   });
 
-  starButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedRating = Number(button.dataset.star);
-      syncStars();
-    });
-  });
-
   reviewForm.addEventListener("submit", (event) => {
     event.preventDefault();
-
-    if (!selectedRating) {
-      reviewStatus.textContent = "Select a star rating before submitting your review.";
-      return;
-    }
 
     if (!reviewBodyInput.value.trim() || !reviewTitleInput.value.trim() || !reviewPublicNameInput.value.trim()) {
       reviewStatus.textContent = "Complete the review, title, and public name fields before submitting.";
@@ -130,14 +116,6 @@ function setupReviewFlow() {
     reviewStatus.textContent = "";
     closeReviewModal();
     openSurveyModal();
-  });
-}
-
-function syncStars() {
-  starButtons.forEach((button) => {
-    const isFilled = Number(button.dataset.star) <= selectedRating;
-    button.classList.toggle("filled", isFilled);
-    button.textContent = isFilled ? "★" : "☆";
   });
 }
 

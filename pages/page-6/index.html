@@ -210,17 +210,9 @@
             <button type="button" class="review-close" id="review-close" aria-label="Close review form">×</button>
           </header>
 
-          <div class="star-picker" aria-label="Review rating">
-            <button type="button" class="star-button" data-star="1">☆</button>
-            <button type="button" class="star-button" data-star="2">☆</button>
-            <button type="button" class="star-button" data-star="3">☆</button>
-            <button type="button" class="star-button" data-star="4">☆</button>
-            <button type="button" class="star-button" data-star="5">☆</button>
-          </div>
-
           <label class="review-field">
-            <span>Write a review</span>
-            <textarea id="review-body" placeholder="What should other customers know?"></textarea>
+            <span>What's your public name? (required)</span>
+            <input id="review-public-name" type="text" placeholder="You can change this later" />
           </label>
 
           <label class="review-field">
@@ -229,8 +221,8 @@
           </label>
 
           <label class="review-field">
-            <span>What's your public name? (required)</span>
-            <input id="review-public-name" type="text" placeholder="You can change this later" />
+            <span>Write a review</span>
+            <textarea id="review-body" placeholder="What should other customers know?"></textarea>
           </label>
 
           <p class="review-status" id="review-status" aria-live="polite"></p>

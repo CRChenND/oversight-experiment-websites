@@ -577,25 +577,6 @@ body.modal-open { overflow: hidden; }
   line-height: 1;
 }
 
-.star-picker {
-  display: flex;
-  gap: 10px;
-  margin: 12px 0 6px;
-}
-
-.star-button {
-  border: 0;
-  background: transparent;
-  color: #f69931;
-  font-size: 2.6rem;
-  line-height: 1;
-  padding: 0;
-}
-
-.star-button.filled {
-  color: #f69931;
-}
-
 .review-field {
   display: grid;
   gap: 8px;
