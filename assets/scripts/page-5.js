@@ -20,6 +20,7 @@ const billingAddressInput = document.querySelector("#billing-address");
 const billingZipInput = document.querySelector("#billing-zip");
 const billingCityInput = document.querySelector("#billing-city");
 const mobilePhoneInput = document.querySelector("#mobile-phone");
+const billingEmailInput = document.querySelector("#billing-email");
 const cardNumberInput = document.querySelector("#card-number");
 const cardMonthInput = document.querySelector("#card-month");
 const cardYearInput = document.querySelector("#card-year");
@@ -146,6 +147,7 @@ function setupPaymentFlow() {
     !billingZipInput ||
     !billingCityInput ||
     !mobilePhoneInput ||
+    !billingEmailInput ||
     !cardNumberInput ||
     !cardMonthInput ||
     !cardYearInput ||
@@ -163,6 +165,7 @@ function setupPaymentFlow() {
       !billingZipInput.value.trim() ||
       !billingCityInput.value.trim() ||
       !mobilePhoneInput.value.trim() ||
+      !billingEmailInput.value.trim() ||
       !cardNumberInput.value.trim() ||
       !cardMonthInput.value.trim() ||
       !cardYearInput.value.trim() ||
