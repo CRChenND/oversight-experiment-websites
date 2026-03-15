@@ -158,7 +158,7 @@
         />
         <button id="submit-button" type="submit">Start</button>
         <button id="popup-fallback-button" class="secondary-button" type="button" hidden>
-          Open Recording Window
+          Open Recording Tab
         </button>
         <p id="status" class="status" aria-live="polite"></p>
       </form>
@@ -168,7 +168,7 @@
     <script>
       const CONFIG_PATH = "./data/experiment-config.csv";
       const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
-      const RECORDING_POPUP_NAME = "oversight-recording-helper";
+      const RECORDING_TAB_NAME = "oversight-recording-helper";
       const recordingConfig = window.OVERSIGHT_RECORDING_CONFIG ?? {};
       const SIGNER_ENDPOINT = recordingConfig.signerEndpoint ?? "";
       const form = document.querySelector("#pid-form");
@@ -194,7 +194,7 @@
 
       popupFallbackButton.addEventListener("click", async () => {
         if (!pendingLaunchContext) {
-          renderStatus("There is no blocked recording window to retry.", "error");
+          renderStatus("There is no blocked recording tab to retry.", "error");
           popupFallbackButton.hidden = true;
           return;
         }
@@ -256,12 +256,12 @@
       }
 
       async function launchExperimentFlow({ pid, nextUrl }) {
-        const popup = openRecordingPopup();
-        if (!popup) {
+        const recordingTab = openRecordingTab();
+        if (!recordingTab) {
           pendingLaunchContext = { pid, nextUrl };
           popupFallbackButton.hidden = false;
           renderStatus(
-            "The recording window was blocked. Click \"Open Recording Window\" below after allowing pop-ups.",
+            "The recording tab was blocked. Click \"Open Recording Tab\" below after allowing pop-ups.",
             "error",
           );
           return;
@@ -273,8 +273,8 @@
         renderStatus("Choose the current tab in the browser capture picker to begin recording.", "");
 
         try {
-          await waitForRecordingPopup(popup);
-          await popup.beginExperimentRecording({
+          await waitForRecordingTab(recordingTab);
+          await recordingTab.beginExperimentRecording({
             pid,
             signerEndpoint: SIGNER_ENDPOINT,
             channelName: RECORDING_CHANNEL_NAME,
@@ -285,35 +285,34 @@
           );
           window.location.href = nextUrl;
         } catch (error) {
-          if (!popup.closed) {
-            popup.close();
+          if (!recordingTab.closed) {
+            recordingTab.close();
           }
           renderStatus(`Unable to start recording: ${error.message}`, "error");
           setLoading(false);
         }
       }
 
-      function openRecordingPopup() {
-        const features = ["popup=yes", "width=840", "height=720", "resizable=yes", "scrollbars=yes"].join(",");
-        const popup = window.open("", RECORDING_POPUP_NAME, features);
-        if (!popup) {
+      function openRecordingTab() {
+        const recordingTab = window.open("", RECORDING_TAB_NAME);
+        if (!recordingTab) {
           return null;
         }
 
-        popup.document.open();
-        popup.document.write(buildRecordingPopupHtml());
-        popup.document.close();
-        popup.focus();
-        return popup;
+        recordingTab.document.open();
+        recordingTab.document.write(buildRecordingHelperHtml());
+        recordingTab.document.close();
+        recordingTab.focus();
+        return recordingTab;
       }
 
-      async function waitForRecordingPopup(popup) {
+      async function waitForRecordingTab(recordingTab) {
         for (let attempt = 0; attempt < 40; attempt += 1) {
-          if (!popup || popup.closed) {
-            throw new Error("The recording window was closed before recording could start.");
+          if (!recordingTab || recordingTab.closed) {
+            throw new Error("The recording tab was closed before recording could start.");
           }
 
-          if (typeof popup.beginExperimentRecording === "function") {
+          if (typeof recordingTab.beginExperimentRecording === "function") {
             return;
           }
 
@@ -322,10 +321,10 @@
           });
         }
 
-        throw new Error("The recording window did not initialize correctly.");
+        throw new Error("The recording tab did not initialize correctly.");
       }
 
-      function buildRecordingPopupHtml() {
+      function buildRecordingHelperHtml() {
         return `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -406,7 +405,7 @@
       <p id="helper-copy">Waiting to start recording.</p>
       <p id="helper-status" class="status" aria-live="polite"></p>
       <div class="meta">
-        Keep this small window open while the study runs. It will record, upload the video, and
+        Keep this tab open while the study runs. It will record, upload the video, and
         stop automatically after the final questionnaire.
       </div>
     </main>
@@ -465,7 +464,6 @@
           activeRecorder.addEventListener("stop", finalizeRecordingCapture);
           activeRecorder.start(1000);
           setHelperState("Recording is active. Return to the experiment tab to continue.", "success");
-          collapseHelperWindow();
         };
 
         function handleChannelMessage(event) {
@@ -707,28 +705,6 @@
             : "Waiting to start recording.";
           helperStatus.textContent = message;
           helperStatus.className = tone ? "status " + tone : "status";
-        }
-
-        function collapseHelperWindow() {
-          try {
-            const collapsedWidth = 360;
-            const collapsedHeight = 140;
-            window.resizeTo(collapsedWidth, collapsedHeight);
-            if (typeof screen !== "undefined" && Number.isFinite(screen.availWidth)) {
-              window.moveTo(Math.max(0, screen.availWidth - collapsedWidth - 24), 24);
-            }
-          } catch {
-            // Ignore browsers that block scripted resize/move.
-          }
-
-          try {
-            if (window.opener && !window.opener.closed) {
-              window.opener.focus();
-            }
-            window.blur();
-          } catch {
-            // Ignore focus failures.
-          }
         }
       })();
     <\/script>
