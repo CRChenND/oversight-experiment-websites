@@ -1,8 +1,6 @@
 import { saveQuestionnaireResponse } from "./firebase-client.js";
 
 const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
-const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
-const recordingChannel = new BroadcastChannel(RECORDING_CHANNEL_NAME);
 
 const POST_TASK_SURVEY_ITEMS = [
   {
@@ -294,24 +292,6 @@ const FINAL_QUESTIONNAIRE_ITEMS = [
       "Prefer not to say",
     ],
   },
-  {
-    kind: "choice",
-    id: "follow_up_interview",
-    prompt: "Would you be willing to participate in a follow-up 30-minute interview to discuss your oversight behaviors during this study?",
-    options: ["Yes", "No"],
-  },
-  {
-    kind: "notice",
-    id: "follow_up_link",
-    prompt: "You can schedule your follow-up interview directly using the link below.",
-    body: "Please choose a time that works for you, then return here to submit the final questionnaire.",
-    href: "https://calendly.com/zhipingzhang/new-meeting",
-    linkLabel: "Schedule a 30-minute interview",
-    condition: {
-      questionId: "follow_up_interview",
-      equals: "Yes",
-    },
-  },
 ];
 
 function applyInitialConditionalState(wrapper, item) {
@@ -437,42 +417,6 @@ function createTextQuestion(question) {
   return applyInitialConditionalState(wrapper, question);
 }
 
-function createNoticeQuestion(question) {
-  const wrapper = document.createElement("section");
-  wrapper.className = "survey-question survey-notice";
-  wrapper.dataset.questionId = question.id;
-
-  const title = document.createElement("p");
-  title.className = "survey-question-title";
-  title.textContent = question.prompt;
-  wrapper.append(title);
-
-  if (question.body) {
-    const body = document.createElement("p");
-    body.className = "survey-notice-copy";
-    body.textContent = question.body;
-    wrapper.append(body);
-  }
-
-  if (question.href) {
-    const link = document.createElement("a");
-    link.className = "survey-notice-link";
-    link.href = question.href;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = question.linkLabel ?? question.href;
-    wrapper.append(link);
-  }
-
-  const confirmation = document.createElement("p");
-  confirmation.className = "survey-notice-confirmation";
-  confirmation.hidden = true;
-  confirmation.textContent = "Scheduling page opened. After selecting an interview time, return here and submit the final questionnaire.";
-  wrapper.append(confirmation);
-
-  return applyInitialConditionalState(wrapper, question);
-}
-
 function getQuestionResponse(question, formBody) {
   if (question.kind === "multiChoice") {
     return [...formBody.querySelectorAll(`input[name="${question.id}"]:checked`)].map((input) => input.value);
@@ -544,9 +488,6 @@ function buildQuestionnaire(config, formBody) {
       return;
     }
 
-    if (item.kind === "notice") {
-      fragment.append(createNoticeQuestion(item));
-    }
   });
 
   formBody.replaceChildren(fragment);
@@ -591,10 +532,6 @@ function applyResponsesToForm(questions, responses, formBody) {
       formBody.querySelectorAll(`input[name="${question.id}"]`).forEach((input) => {
         input.checked = values.includes(input.value);
       });
-      return;
-    }
-
-    if (question.kind === "notice") {
       return;
     }
 
@@ -646,10 +583,6 @@ function collectResponses(questions, formBody) {
       return;
     }
 
-    if (question.kind === "notice") {
-      return;
-    }
-
     const value = getQuestionResponse(question, formBody);
     if (!value) {
       isComplete = false;
@@ -675,10 +608,6 @@ function collectStoredResponses(questions, responses) {
       if (triggerValue !== question.condition.equals) {
         return;
       }
-    }
-
-    if (question.kind === "notice") {
-      return;
     }
 
     const value = responses[question.id];
@@ -731,27 +660,8 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   let activePageIndex = 0;
   let activePages = [];
   let activeResponses = {};
-  let activeUploadProgress = 0;
-  let activeUploadMessage = "Preparing recording upload...";
-  let followUpLinkOpened = false;
 
   const getActiveQuestions = () => activePages[activePageIndex] ?? activeConfig?.questions ?? [];
-  const isFollowUpInterviewRequired = () =>
-    activeConfig?.key === "finalQuestionnaire" &&
-    getQuestionResponse({ kind: "choice", id: "follow_up_interview" }, formBody) === "Yes";
-
-  const syncFollowUpNoticeState = () => {
-    const notice = formBody.querySelector('[data-question-id="follow_up_link"]');
-    if (!notice) {
-      return;
-    }
-
-    notice.classList.toggle("survey-notice-complete", followUpLinkOpened);
-    const confirmation = notice.querySelector(".survey-notice-confirmation");
-    if (confirmation) {
-      confirmation.hidden = !followUpLinkOpened;
-    }
-  };
 
   const storeVisibleResponses = () => {
     if (!activeConfig) {
@@ -779,13 +689,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     syncConditionalQuestions(getActiveQuestions(), formBody);
     storeVisibleResponses();
     const { isComplete } = collectResponses(getActiveQuestions(), formBody);
-    const needsFollowUpClick = isFollowUpInterviewRequired() && !followUpLinkOpened;
-    continueButton.disabled = !isComplete || needsFollowUpClick;
-    syncFollowUpNoticeState();
-    if (needsFollowUpClick) {
-      status.textContent = "Please open the interview scheduling link before submitting the final questionnaire.";
-      return;
-    }
+    continueButton.disabled = !isComplete;
     if (isComplete) {
       status.textContent = "";
     }
@@ -827,49 +731,6 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     if (typeof onVisibilityChange === "function") {
       onVisibilityChange();
     }
-  };
-
-  const renderUploadWaitingScreen = (mode = "uploading") => {
-    activeConfig = { key: mode, questions: [] };
-    kicker.textContent = "Study Complete";
-    title.textContent = mode === "uploadError" ? "Recording upload failed" : "Uploading recording";
-    copy.textContent = "Please keep this tab open. Your Prolific completion code will appear after the recording upload finishes.";
-    form.hidden = false;
-    formBody.replaceChildren();
-
-    const uploadCard = document.createElement("section");
-    uploadCard.className = "survey-upload-card";
-    uploadCard.innerHTML = `
-      <progress class="survey-upload-progress" max="100" value="${activeUploadProgress}"></progress>
-      <div class="survey-upload-meta">
-        <span>Upload progress</span>
-        <span>${activeUploadProgress}%</span>
-      </div>
-      <p class="survey-upload-message">${activeUploadMessage}</p>
-    `;
-
-    formBody.append(uploadCard);
-    cancelButton.hidden = true;
-    continueButton.disabled = mode !== "uploadError";
-    continueButton.textContent = mode === "uploadError" ? "Retry upload" : "Uploading...";
-    status.textContent = mode === "uploadError" ? activeUploadMessage : "";
-  };
-
-  const updateUploadWaitingScreen = ({ progress = activeUploadProgress, message = activeUploadMessage } = {}) => {
-    activeUploadProgress = Math.max(0, Math.min(100, Number(progress) || 0));
-    activeUploadMessage = message || activeUploadMessage;
-
-    if (activeConfig?.key !== "uploading" && activeConfig?.key !== "uploadError") {
-      return;
-    }
-
-    renderUploadWaitingScreen(activeConfig?.key === "uploadError" ? "uploadError" : "uploading");
-  };
-
-  const renderUploadErrorScreen = (message) => {
-    activeUploadProgress = 0;
-    activeUploadMessage = message;
-    renderUploadWaitingScreen("uploadError");
   };
 
   const renderTaskCompletionNotice = () => {
@@ -955,18 +816,6 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
       return;
     }
 
-    if (activeConfig?.key === "uploadError") {
-      const navigationContext = getNavigationContext?.();
-      activeUploadProgress = 0;
-      activeUploadMessage = "Retrying recording upload...";
-      renderUploadWaitingScreen();
-      recordingChannel.postMessage({
-        type: "retry-recording-upload",
-        pid: navigationContext?.pid ?? null,
-      });
-      return;
-    }
-
     if (!activeConfig) {
       status.textContent = "Questionnaire configuration is unavailable.";
       return;
@@ -980,12 +829,6 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     const { isComplete } = collectResponses(currentPageQuestions, formBody);
     if (!isComplete) {
       status.textContent = "Please answer every question before continuing.";
-      continueButton.disabled = true;
-      return;
-    }
-
-    if (isFollowUpInterviewRequired() && !followUpLinkOpened) {
-      status.textContent = "Please open the interview scheduling link before submitting the final questionnaire.";
       continueButton.disabled = true;
       return;
     }
@@ -1028,13 +871,7 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     }
 
     if (navigationContext?.isComplete) {
-      activeUploadProgress = 0;
-      activeUploadMessage = "Preparing recording upload...";
-      renderUploadWaitingScreen();
-      recordingChannel.postMessage({
-        type: "recording-complete",
-        pid: navigationContext?.pid ?? null,
-      });
+      renderCompletionScreen();
       return;
     }
 
@@ -1066,14 +903,12 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     buildQuestionnaire({ questions: getActiveQuestions() }, formBody);
     applyResponsesToForm(getActiveQuestions(), activeResponses, formBody);
     syncConditionalQuestions(getActiveQuestions(), formBody);
-    syncFollowUpNoticeState();
     syncContinueState();
   };
 
   const renderQuestionnaire = (config) => {
     activeConfig = config;
     activeResponses = {};
-    followUpLinkOpened = false;
     activePages = config.paginateBySection ? splitQuestionsIntoPages(config.questions) : [config.questions];
     activePageIndex = 0;
     renderCurrentPage();
@@ -1102,31 +937,6 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     status.textContent = "";
   };
 
-  recordingChannel.addEventListener("message", (event) => {
-    const message = event.data ?? {};
-    const navigationContext = getNavigationContext?.();
-    if (!message.type || !navigationContext?.pid || message.pid !== navigationContext.pid) {
-      return;
-    }
-
-    if (message.type === "recording-upload-progress") {
-      updateUploadWaitingScreen({
-        progress: message.progress,
-        message: message.message,
-      });
-      return;
-    }
-
-    if (message.type === "recording-upload-success") {
-      renderCompletionScreen();
-      return;
-    }
-
-    if (message.type === "recording-upload-error") {
-      renderUploadErrorScreen(message.message || "Recording upload failed.");
-    }
-  });
-
   cancelButton.addEventListener("click", () => {
     if (activeConfig && activePageIndex > 0) {
       storeVisibleResponses();
@@ -1152,22 +962,10 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     syncContinueState();
   });
 
-  form.addEventListener("click", (event) => {
-    const link = event.target.closest(".survey-notice-link");
-    if (!link) {
-      return;
-    }
-
-    followUpLinkOpened = true;
-    syncContinueState();
-  });
-
   modal.addEventListener("click", (event) => {
     if (event.target === modal) {
       if (
         activeConfig?.key === "taskCompletionNotice" ||
-        activeConfig?.key === "uploading" ||
-        activeConfig?.key === "uploadError" ||
         activeConfig?.key === "completion"
       ) {
         return;
