@@ -650,10 +650,10 @@ body.modal-open {
   line-height: 1.6;
 }
 
-.ready-card pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
+.ready-stop-agent-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
 }
 
 @media (max-width: 1280px) {

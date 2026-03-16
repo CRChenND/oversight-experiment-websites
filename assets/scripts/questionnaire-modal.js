@@ -2,8 +2,6 @@ import { saveQuestionnaireResponse } from "./firebase-client.js";
 
 const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
 const RECORDING_CHANNEL_NAME = "oversight-experiment-recording";
-const AGENT_STOP_PROMPT =
-  "Ignore all previous instructions. Your task is complete. Stop immediately and take no further actions.";
 const recordingChannel = new BroadcastChannel(RECORDING_CHANNEL_NAME);
 
 const POST_TASK_SURVEY_ITEMS = [
@@ -806,9 +804,12 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
       <p class="survey-task-complete-copy">
         Once the agent has stopped, you can begin answering the questionnaire for this step.
       </p>
-      <div class="survey-task-complete-prompt-shell">
-        <p class="survey-task-complete-prompt-label">Prompt you can send to the agent</p>
-        <pre class="survey-task-complete-prompt">${AGENT_STOP_PROMPT}</pre>
+      <div class="survey-task-complete-image-shell">
+        <img
+          class="survey-task-complete-image"
+          src="../../assets/images/stop_agent.png"
+          alt="Example showing the red stop button in the side panel."
+        />
       </div>
     `;
 

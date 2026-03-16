@@ -246,31 +246,17 @@
   line-height: 1.6;
 }
 
-.survey-task-complete-prompt-shell {
-  display: grid;
-  gap: 10px;
-  padding: 16px;
+.survey-task-complete-image-shell {
+  padding: 8px;
   border: 1px solid #f3d2cc;
   border-radius: 14px;
   background: #ffffff;
 }
 
-.survey-task-complete-prompt-label {
-  color: #9f2d1f;
-  font-size: 0.82rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.survey-task-complete-prompt {
-  overflow-x: auto;
-  padding: 14px;
-  border-radius: 12px;
-  background: #111827;
-  color: #f9fafb;
-  font: 0.92rem/1.6 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  white-space: pre-wrap;
+.survey-task-complete-image {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
 }
 
 .survey-footer {
