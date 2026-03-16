@@ -125,6 +125,7 @@ function ensureVideoGateStyles() {
   style.textContent = `
     .instruction-video-gate-note {
       margin: 14px 0 0;
+      text-align: center;
       color: #b42318;
       font-size: 0.92rem;
       font-weight: 700;

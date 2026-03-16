@@ -562,6 +562,13 @@ body.modal-open {
   background: var(--x-blue-dark);
 }
 
+.instruction-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
+}
+
 .instruction-button.secondary {
   border-color: #d5deea;
   background: #fff;
@@ -641,6 +648,12 @@ body.modal-open {
   margin: 14px 0 22px;
   color: var(--x-muted);
   line-height: 1.6;
+}
+
+.ready-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 1280px) {
