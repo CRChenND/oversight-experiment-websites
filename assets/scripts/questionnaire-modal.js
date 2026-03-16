@@ -304,7 +304,7 @@ const FINAL_QUESTIONNAIRE_ITEMS = [
     kind: "notice",
     id: "follow_up_link",
     prompt: "You can schedule your follow-up interview directly using the link below.",
-    body: "Please choose a time that works for you:",
+    body: "Please choose a time that works for you, then return here to submit the final questionnaire.",
     href: "https://calendly.com/zhipingzhang/new-meeting",
     linkLabel: "Schedule a 30-minute interview",
     condition: {
@@ -455,6 +455,12 @@ function createNoticeQuestion(question) {
     link.textContent = question.linkLabel ?? question.href;
     wrapper.append(link);
   }
+
+  const confirmation = document.createElement("p");
+  confirmation.className = "survey-notice-confirmation";
+  confirmation.hidden = true;
+  confirmation.textContent = "Scheduling page opened. After selecting an interview time, return here and submit the final questionnaire.";
+  wrapper.append(confirmation);
 
   return wrapper;
 }
@@ -719,8 +725,25 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   let activeResponses = {};
   let activeUploadProgress = 0;
   let activeUploadMessage = "Preparing recording upload...";
+  let followUpLinkOpened = false;
 
   const getActiveQuestions = () => activePages[activePageIndex] ?? activeConfig?.questions ?? [];
+  const isFollowUpInterviewRequired = () =>
+    activeConfig?.key === "finalQuestionnaire" &&
+    getQuestionResponse({ kind: "choice", id: "follow_up_interview" }, formBody) === "Yes";
+
+  const syncFollowUpNoticeState = () => {
+    const notice = formBody.querySelector('[data-question-id="follow_up_link"]');
+    if (!notice) {
+      return;
+    }
+
+    notice.classList.toggle("survey-notice-complete", followUpLinkOpened);
+    const confirmation = notice.querySelector(".survey-notice-confirmation");
+    if (confirmation) {
+      confirmation.hidden = !followUpLinkOpened;
+    }
+  };
 
   const storeVisibleResponses = () => {
     if (!activeConfig) {
@@ -748,7 +771,13 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     syncConditionalQuestions(getActiveQuestions(), formBody);
     storeVisibleResponses();
     const { isComplete } = collectResponses(getActiveQuestions(), formBody);
-    continueButton.disabled = !isComplete;
+    const needsFollowUpClick = isFollowUpInterviewRequired() && !followUpLinkOpened;
+    continueButton.disabled = !isComplete || needsFollowUpClick;
+    syncFollowUpNoticeState();
+    if (needsFollowUpClick) {
+      status.textContent = "Please open the interview scheduling link before submitting the final questionnaire.";
+      return;
+    }
     if (isComplete) {
       status.textContent = "";
     }
@@ -947,6 +976,12 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
       return;
     }
 
+    if (isFollowUpInterviewRequired() && !followUpLinkOpened) {
+      status.textContent = "Please open the interview scheduling link before submitting the final questionnaire.";
+      continueButton.disabled = true;
+      return;
+    }
+
     const hasNextPage = activePageIndex < activePages.length - 1;
     if (hasNextPage) {
       activePageIndex += 1;
@@ -1023,12 +1058,14 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     buildQuestionnaire({ questions: getActiveQuestions() }, formBody);
     applyResponsesToForm(getActiveQuestions(), activeResponses, formBody);
     syncConditionalQuestions(getActiveQuestions(), formBody);
+    syncFollowUpNoticeState();
     syncContinueState();
   };
 
   const renderQuestionnaire = (config) => {
     activeConfig = config;
     activeResponses = {};
+    followUpLinkOpened = false;
     activePages = config.paginateBySection ? splitQuestionsIntoPages(config.questions) : [config.questions];
     activePageIndex = 0;
     renderCurrentPage();
@@ -1104,6 +1141,16 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   });
 
   form.addEventListener("input", () => {
+    syncContinueState();
+  });
+
+  form.addEventListener("click", (event) => {
+    const link = event.target.closest(".survey-notice-link");
+    if (!link) {
+      return;
+    }
+
+    followUpLinkOpened = true;
     syncContinueState();
   });
 
