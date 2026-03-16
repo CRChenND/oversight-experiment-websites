@@ -301,10 +301,12 @@ const FINAL_QUESTIONNAIRE_ITEMS = [
     options: ["Yes", "No"],
   },
   {
-    kind: "email",
-    id: "follow_up_email",
-    prompt: "Please enter your email address so we can contact you about the follow-up interview.",
-    placeholder: "name@example.com",
+    kind: "notice",
+    id: "follow_up_link",
+    prompt: "You can schedule your follow-up interview directly using the link below.",
+    body: "Please choose a time that works for you:",
+    href: "https://calendly.com/zhipingzhang/new-meeting",
+    linkLabel: "Schedule a 30-minute interview",
     condition: {
       questionId: "follow_up_interview",
       equals: "Yes",
@@ -427,6 +429,36 @@ function createTextQuestion(question) {
   return wrapper;
 }
 
+function createNoticeQuestion(question) {
+  const wrapper = document.createElement("section");
+  wrapper.className = "survey-question survey-notice";
+  wrapper.dataset.questionId = question.id;
+
+  const title = document.createElement("p");
+  title.className = "survey-question-title";
+  title.textContent = question.prompt;
+  wrapper.append(title);
+
+  if (question.body) {
+    const body = document.createElement("p");
+    body.className = "survey-notice-copy";
+    body.textContent = question.body;
+    wrapper.append(body);
+  }
+
+  if (question.href) {
+    const link = document.createElement("a");
+    link.className = "survey-notice-link";
+    link.href = question.href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = question.linkLabel ?? question.href;
+    wrapper.append(link);
+  }
+
+  return wrapper;
+}
+
 function getQuestionResponse(question, formBody) {
   if (question.kind === "multiChoice") {
     return [...formBody.querySelectorAll(`input[name="${question.id}"]:checked`)].map((input) => input.value);
@@ -495,6 +527,11 @@ function buildQuestionnaire(config, formBody) {
 
     if (item.kind === "text" || item.kind === "email") {
       fragment.append(createTextQuestion(item));
+      return;
+    }
+
+    if (item.kind === "notice") {
+      fragment.append(createNoticeQuestion(item));
     }
   });
 
@@ -540,6 +577,10 @@ function applyResponsesToForm(questions, responses, formBody) {
       formBody.querySelectorAll(`input[name="${question.id}"]`).forEach((input) => {
         input.checked = values.includes(input.value);
       });
+      return;
+    }
+
+    if (question.kind === "notice") {
       return;
     }
 
@@ -591,6 +632,10 @@ function collectResponses(questions, formBody) {
       return;
     }
 
+    if (question.kind === "notice") {
+      return;
+    }
+
     const value = getQuestionResponse(question, formBody);
     if (!value) {
       isComplete = false;
@@ -616,6 +661,10 @@ function collectStoredResponses(questions, responses) {
       if (triggerValue !== question.condition.equals) {
         return;
       }
+    }
+
+    if (question.kind === "notice") {
+      return;
     }
 
     const value = responses[question.id];

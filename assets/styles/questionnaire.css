@@ -152,6 +152,36 @@
   border-color: #0b6dca;
 }
 
+.survey-notice {
+  display: grid;
+  gap: 10px;
+  background: linear-gradient(180deg, #f3f9ff 0%, #fbfdff 100%);
+}
+
+.survey-notice-copy {
+  margin: 0;
+  color: #516071;
+  line-height: 1.6;
+}
+
+.survey-notice-link {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #0b6dca;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.survey-notice-link:hover,
+.survey-notice-link:focus-visible {
+  background: #0958a4;
+}
+
 .survey-status {
   min-height: 20px;
   margin: 12px 0 0;
