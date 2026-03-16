@@ -314,6 +314,14 @@ const FINAL_QUESTIONNAIRE_ITEMS = [
   },
 ];
 
+function applyInitialConditionalState(wrapper, item) {
+  if (item.condition) {
+    wrapper.hidden = true;
+  }
+
+  return wrapper;
+}
+
 function createScaleQuestion(question) {
   const wrapper = document.createElement("fieldset");
   wrapper.className = "survey-question";
@@ -352,7 +360,7 @@ function createScaleQuestion(question) {
   });
 
   wrapper.append(legend, options);
-  return wrapper;
+  return applyInitialConditionalState(wrapper, question);
 }
 
 function createSection(item) {
@@ -406,7 +414,7 @@ function createChoiceQuestion(question) {
   });
 
   wrapper.append(legend, options);
-  return wrapper;
+  return applyInitialConditionalState(wrapper, question);
 }
 
 function createTextQuestion(question) {
@@ -426,7 +434,7 @@ function createTextQuestion(question) {
   input.autocomplete = question.kind === "email" ? "email" : "on";
 
   wrapper.append(legend, input);
-  return wrapper;
+  return applyInitialConditionalState(wrapper, question);
 }
 
 function createNoticeQuestion(question) {
@@ -462,7 +470,7 @@ function createNoticeQuestion(question) {
   confirmation.textContent = "Scheduling page opened. After selecting an interview time, return here and submit the final questionnaire.";
   wrapper.append(confirmation);
 
-  return wrapper;
+  return applyInitialConditionalState(wrapper, question);
 }
 
 function getQuestionResponse(question, formBody) {
