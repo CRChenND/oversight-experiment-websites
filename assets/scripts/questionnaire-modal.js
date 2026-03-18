@@ -918,19 +918,10 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
     activeConfig = { key: "completion", questions: [] };
     kicker.textContent = "Study Complete";
     title.textContent = "Final questionnaire submitted";
-    copy.textContent = "Use the Prolific completion code below to claim your compensation on Prolific.";
+    copy.textContent = "The study is completed. Thank you for your participation.";
     form.hidden = false;
     formBody.replaceChildren();
 
-    const completionCard = document.createElement("section");
-    completionCard.className = "survey-completion-card";
-    completionCard.innerHTML = `
-      <p class="survey-completion-label">Prolific Completion Code</p>
-      <p class="survey-completion-code">${PROLIFIC_COMPLETION_CODE}</p>
-      <p class="survey-completion-copy">Please copy this code and submit it on Prolific to receive compensation.</p>
-    `;
-
-    formBody.append(completionCard);
     cancelButton.hidden = true;
     continueButton.disabled = false;
     continueButton.textContent = "End experiment";
