@@ -1,5 +1,22 @@
 import { saveInteractionLog } from "./firebase-client.js";
 
+const interactionLogs = [];
+
+/**
+ * Returns a copy of the accumulated interaction logs.
+ * @returns {Array}
+ */
+export function getInteractionLogs() {
+  return [...interactionLogs];
+}
+
+/**
+ * Clears the accumulated interaction logs.
+ */
+export function clearInteractionLogs() {
+  interactionLogs.length = 0;
+}
+
 function initInteractionLogger() {
   const params = new URLSearchParams(window.location.search);
   const pid = params.get("pid")?.trim();
@@ -22,7 +39,7 @@ function initInteractionLogger() {
       value: (type === "input" || type === "change") ? target.value : undefined,
     };
 
-    saveInteractionLog({
+    const logEntry = {
       pid,
       step,
       pageId,
@@ -33,7 +50,13 @@ function initInteractionLogger() {
         url: window.location.href,
         timestamp: Date.now(),
       }
-    });
+    };
+
+    // Buffer the log
+    interactionLogs.push(logEntry);
+
+    // Still save immediately for redundancy/real-time tracking
+    saveInteractionLog(logEntry);
   };
 
   document.addEventListener("click", (event) => {

@@ -1,4 +1,5 @@
 import { saveQuestionnaireResponse } from "./firebase-client.js";
+import { getInteractionLogs, clearInteractionLogs } from "./interaction-logger.js";
 
 const PROLIFIC_COMPLETION_CODE = "CKSHRB2J";
 
@@ -768,12 +769,15 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
   };
 
   const persistResponses = async (questionnaireKey, responses, navigationContext) => {
+    const interactionLogs = getInteractionLogs();
+    
     try {
       const payload = {
         questionnaire: questionnaireKey,
         step: navigationContext?.currentStep ?? null,
         pid: navigationContext?.pid ?? null,
         responses,
+        interactionLogs,
         savedAt: new Date().toISOString(),
       };
       window.sessionStorage.setItem(`oversight-study:${questionnaireKey}`, JSON.stringify(payload));
@@ -786,7 +790,11 @@ export function setupQuestionnaireModal({ getNavigationContext, onCancel, onVisi
       step: navigationContext?.currentStep ?? null,
       questionnaire: questionnaireKey,
       responses,
+      interactionLogs,
     });
+
+    // Clear logs after successful submission to avoid duplication in subsequent steps if any
+    clearInteractionLogs();
   };
 
   const formatQuestionnaireSaveError = (error) => {

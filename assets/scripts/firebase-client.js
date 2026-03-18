@@ -112,7 +112,7 @@ export async function saveInteractionLog({ pid, step, pageId, type, target, valu
   }
 }
 
-export async function saveQuestionnaireResponse({ pid, step, questionnaire, responses }) {
+export async function saveQuestionnaireResponse({ pid, step, questionnaire, responses, interactionLogs }) {
   if (!pid) {
     throw new Error("Missing pid. Questionnaire responses cannot be saved.");
   }
@@ -133,6 +133,7 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
         ...basePayload,
         finalQuestionnaire: {
           responses,
+          interactionLogs: interactionLogs ?? [],
           submittedAt: serverTimestamp(),
         },
       };
@@ -145,6 +146,7 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
           [stepKey]: {
             postTaskSurvey: {
               responses,
+              interactionLogs: interactionLogs ?? [],
               submittedAt: serverTimestamp(),
             },
           },
