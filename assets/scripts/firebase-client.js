@@ -6,6 +6,8 @@ import {
   signInAnonymously,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
+  addDoc,
+  collection,
   doc,
   getFirestore,
   serverTimestamp,
@@ -70,6 +72,44 @@ async function ensureAnonymousAuth() {
   }
 
   return authReadyPromise;
+}
+
+export async function saveInteractionLog({ pid, step, pageId, type, target, value, metadata }) {
+  if (!pid) {
+    return;
+  }
+
+  const interactionsRef = collection(db, "participants", pid, "interactions");
+  const payload = {
+    step,
+    pageId,
+    type,
+    target,
+    value: value ?? null,
+    metadata: metadata ?? {},
+    timestamp: serverTimestamp(),
+  };
+
+  try {
+    await addDoc(interactionsRef, payload);
+  } catch (error) {
+    const shouldRetryWithAuth =
+      error?.code === "permission-denied" ||
+      error?.code === "unauthenticated" ||
+      error?.code === "failed-precondition";
+
+    if (!shouldRetryWithAuth) {
+      console.error("Failed to save interaction log:", error);
+      return;
+    }
+
+    try {
+      await ensureAnonymousAuth();
+      await addDoc(interactionsRef, payload);
+    } catch (retryError) {
+      console.error("Failed to save interaction log after auth retry:", retryError);
+    }
+  }
 }
 
 export async function saveQuestionnaireResponse({ pid, step, questionnaire, responses }) {
