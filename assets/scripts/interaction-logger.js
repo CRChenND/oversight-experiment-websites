@@ -51,36 +51,49 @@ function initInteractionLogger() {
   const pathParts = window.location.pathname.split("/");
   const pageId = pathParts.find(part => part.startsWith("page-")) || "unknown";
 
+  const getLoggableElement = (target) => {
+    if (!(target instanceof Element)) {
+      return null;
+    }
+
+    return target.closest("button, a, [role='button']");
+  };
+
+  const getElementText = (element) =>
+    element?.innerText
+      ?.replace(/\s+/g, " ")
+      .trim()
+      .substring(0, 100) || "";
+
   /**
    * click logging
    */
   const logClick = (event) => {
     const target = event.target;
+    const element = getLoggableElement(target);
 
     // Ignore events originating from the survey modal or instruction modal
     if (
-      target.closest("#survey-modal") || 
-      target.closest("#instruction-modal")
+      (target instanceof Element && target.closest("#survey-modal")) ||
+      (target instanceof Element && target.closest("#instruction-modal"))
     ) {
       return;
     }
 
-    if (
-      target.tagName === "BUTTON" ||
-      target.tagName === "A" ||
-      target.closest("button") ||
-      target.closest("a")
-    ) {
+    if (element) {
       const logEntry = {
         pid,
         step,
         pageId,
         type: "click",
         target: JSON.stringify({
-          tagName: target.tagName,
-          id: target.id,
-          className: target.className,
-          text: target.innerText?.substring(0, 100),
+          tagName: element.tagName,
+          id: element.id,
+          className: element.className,
+          text: getElementText(element),
+          ariaLabel: element.getAttribute("aria-label") || "",
+          href: element instanceof HTMLAnchorElement ? element.href : "",
+          originalTargetTagName: target instanceof Element ? target.tagName : "",
         }),
         metadata: {
           url: window.location.href,
