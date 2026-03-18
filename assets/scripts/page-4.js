@@ -222,6 +222,7 @@ function buildResultCard(item, enableOrder) {
 
   const orderButton = document.createElement("button");
   orderButton.className = "order-button";
+  orderButton.id = item.orderButtonId;
   orderButton.type = "button";
   orderButton.textContent = "Order";
   orderButton.disabled = !enableOrder;
@@ -245,8 +246,20 @@ function createRestaurant(name, rating, location, hours, snippet, tags, color, i
     tags,
     color,
     imageUrl,
+    orderButtonId: buildOrderButtonId(name),
     reviews: `${Math.floor(Number.parseFloat(rating) * 120 + 40)}`,
   };
+}
+
+function buildOrderButtonId(name) {
+  const normalized = name
+    .toLowerCase()
+    .trim()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `order-${normalized}`;
 }
 
 async function setupInstructionModal() {

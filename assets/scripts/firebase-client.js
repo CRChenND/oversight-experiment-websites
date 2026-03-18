@@ -146,9 +146,9 @@ export async function saveQuestionnaireResponse({ pid, step, questionnaire, resp
           [stepKey]: {
             postTaskSurvey: {
               responses,
-              interactionLogs: interactionLogs ?? [],
               submittedAt: serverTimestamp(),
             },
+            interactionLogs: interactionLogs ?? [],
           },
         },
       };

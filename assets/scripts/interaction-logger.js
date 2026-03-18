@@ -4,6 +4,19 @@ const interactionLogs = [];
 
 const latestInputValues = new Map();
 
+function formatHumanReadableTimestamp(date = new Date()) {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZoneName: "short",
+  }).format(date);
+}
+
 /**
  * Flushes latest input values into the interaction logs array.
  */
@@ -71,7 +84,7 @@ function initInteractionLogger() {
         }),
         metadata: {
           url: window.location.href,
-          timestamp: Date.now(),
+          timestamp: formatHumanReadableTimestamp(),
         },
       };
 
@@ -112,7 +125,7 @@ function initInteractionLogger() {
         value: target.value,
         metadata: {
           url: window.location.href,
-          timestamp: Date.now(),
+          timestamp: formatHumanReadableTimestamp(),
         },
       });
     }
