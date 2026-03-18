@@ -2,84 +2,106 @@ import { saveInteractionLog } from "./firebase-client.js";
 
 const interactionLogs = [];
 
+const latestInputValues = new Map();
+
 /**
  * Returns a copy of the accumulated interaction logs.
- * @returns {Array}
  */
 export function getInteractionLogs() {
   return [...interactionLogs];
 }
 
 /**
- * Clears the accumulated interaction logs.
+ * Clears logs
  */
 export function clearInteractionLogs() {
   interactionLogs.length = 0;
+  latestInputValues.clear();
 }
 
 function initInteractionLogger() {
   const params = new URLSearchParams(window.location.search);
   const pid = params.get("pid")?.trim();
   const step = Number.parseInt(params.get("step") ?? "0", 10);
-  
-  // Extract pageId from path (e.g., /pages/page-1/ -> page-1)
+
   const pathParts = window.location.pathname.split("/");
   const pageId = pathParts.find(part => part.startsWith("page-")) || "unknown";
 
-  const log = (type, event) => {
+  /**
+   * click logging
+   */
+  const logClick = (event) => {
     const target = event.target;
-    const targetInfo = {
-      tagName: target.tagName,
-      id: target.id,
-      className: target.className,
-      name: target.name,
-      type: target.type,
-      text: target.innerText?.substring(0, 100),
-      placeholder: target.placeholder,
-      value: (type === "input" || type === "change") ? target.value : undefined,
-    };
 
-    const logEntry = {
-      pid,
-      step,
-      pageId,
-      type,
-      target: JSON.stringify(targetInfo),
-      value: target.value,
-      metadata: {
-        url: window.location.href,
-        timestamp: Date.now(),
-      }
-    };
-
-    // Buffer the log
-    interactionLogs.push(logEntry);
-
-    // REMOVED: saveInteractionLog(logEntry); 
-  };
-
-  document.addEventListener("click", (event) => {
-    // Only log clicks on interactive elements or if it's a significant click
-    const target = event.target;
     if (
-      target.tagName === "BUTTON" || 
-      target.tagName === "A" || 
-      target.tagName === "INPUT" || 
-      target.closest("button") || 
+      target.tagName === "BUTTON" ||
+      target.tagName === "A" ||
+      target.closest("button") ||
       target.closest("a")
     ) {
-      log("click", event);
-    }
-  }, true);
+      const logEntry = {
+        pid,
+        step,
+        pageId,
+        type: "click",
+        target: JSON.stringify({
+          tagName: target.tagName,
+          id: target.id,
+          className: target.className,
+          text: target.innerText?.substring(0, 100),
+        }),
+        metadata: {
+          url: window.location.href,
+          timestamp: Date.now(),
+        },
+      };
 
-  // REMOVED: document.addEventListener("input", ...) to avoid recording every keystroke.
-  // We only keep "change" to record the final value.
-
-  document.addEventListener("change", (event) => {
-    if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA" || event.target.tagName === "SELECT") {
-      log("change", event);
+      interactionLogs.push(logEntry);
+      // saveInteractionLog(logEntry);
     }
-  }, true);
+  };
+
+  const handleChange = (event) => {
+    const target = event.target;
+
+    if (
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.tagName === "SELECT"
+    ) {
+      const key = `${pageId}-${target.name || target.id || target.placeholder}`;
+
+      latestInputValues.set(key, {
+        pid,
+        step,
+        pageId,
+        type: "final_input",
+        target: JSON.stringify({
+          tagName: target.tagName,
+          id: target.id,
+          name: target.name,
+          placeholder: target.placeholder,
+        }),
+        value: target.value,
+        metadata: {
+          url: window.location.href,
+          timestamp: Date.now(),
+        },
+      });
+    }
+  };
+
+  const flushFinalInputs = () => {
+    for (const logEntry of latestInputValues.values()) {
+      interactionLogs.push(logEntry);
+      // saveInteractionLog(logEntry);
+    }
+  };
+
+  document.addEventListener("click", logClick, true);
+  document.addEventListener("change", handleChange, true);
+
+  window.addEventListener("beforeunload", flushFinalInputs);
 }
 
 // Start logger
