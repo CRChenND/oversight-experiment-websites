@@ -5,9 +5,20 @@ const interactionLogs = [];
 const latestInputValues = new Map();
 
 /**
+ * Flushes latest input values into the interaction logs array.
+ */
+export function flushFinalInputs() {
+  for (const logEntry of latestInputValues.values()) {
+    interactionLogs.push(logEntry);
+  }
+  latestInputValues.clear();
+}
+
+/**
  * Returns a copy of the accumulated interaction logs.
  */
 export function getInteractionLogs() {
+  flushFinalInputs();
   return [...interactionLogs];
 }
 
@@ -32,6 +43,14 @@ function initInteractionLogger() {
    */
   const logClick = (event) => {
     const target = event.target;
+
+    // Ignore events originating from the survey modal or instruction modal
+    if (
+      target.closest("#survey-modal") || 
+      target.closest("#instruction-modal")
+    ) {
+      return;
+    }
 
     if (
       target.tagName === "BUTTON" ||
@@ -64,6 +83,14 @@ function initInteractionLogger() {
   const handleChange = (event) => {
     const target = event.target;
 
+    // Ignore events originating from the survey modal or instruction modal
+    if (
+      target.closest("#survey-modal") || 
+      target.closest("#instruction-modal")
+    ) {
+      return;
+    }
+
     if (
       target.tagName === "INPUT" ||
       target.tagName === "TEXTAREA" ||
@@ -88,13 +115,6 @@ function initInteractionLogger() {
           timestamp: Date.now(),
         },
       });
-    }
-  };
-
-  const flushFinalInputs = () => {
-    for (const logEntry of latestInputValues.values()) {
-      interactionLogs.push(logEntry);
-      // saveInteractionLog(logEntry);
     }
   };
 
