@@ -55,8 +55,7 @@ function initInteractionLogger() {
     // Buffer the log
     interactionLogs.push(logEntry);
 
-    // Still save immediately for redundancy/real-time tracking
-    saveInteractionLog(logEntry);
+    // REMOVED: saveInteractionLog(logEntry); 
   };
 
   document.addEventListener("click", (event) => {
@@ -73,14 +72,8 @@ function initInteractionLogger() {
     }
   }, true);
 
-  document.addEventListener("input", (event) => {
-    // For inputs, we might want to debounce if it's too frequent, 
-    // but the requirement is "input" and "input change".
-    // Let's log 'input' for text entry and 'change' for final value.
-    if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA" || event.target.tagName === "SELECT") {
-      log("input", event);
-    }
-  }, true);
+  // REMOVED: document.addEventListener("input", ...) to avoid recording every keystroke.
+  // We only keep "change" to record the final value.
 
   document.addEventListener("change", (event) => {
     if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA" || event.target.tagName === "SELECT") {
