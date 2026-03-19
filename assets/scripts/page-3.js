@@ -4,16 +4,7 @@ import { setupInstructionReminder } from "./instruction-reminder.js";
 import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 import { setupInstructionVideoGate } from "./instruction-video-gate.js";
 
-const nameForm = document.querySelector("#name-form");
-const addressForm = document.querySelector("#address-form");
-const firstNameInput = document.querySelector("#first-name");
-const lastNameInput = document.querySelector("#last-name");
-const addressLine1Input = document.querySelector("#address-line-1");
-const cityInput = document.querySelector("#city");
-const zipCodeInput = document.querySelector("#zip-code");
-const nameFormStatus = document.querySelector("#name-form-status");
-const addressFormStatus = document.querySelector("#address-form-status");
-const addressBackButton = document.querySelector("#address-back-button");
+const formStepMount = document.querySelector("#form-step-mount");
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
@@ -52,6 +43,26 @@ const MECHANISM_MAP = {
 
 let navigationContext = null;
 let currentMechanismName = "Oversight";
+let currentFormStep = 1;
+const formState = {
+  name: {
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    suffix: "-Select One-",
+    otherNames: "",
+    status: "",
+  },
+  address: {
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "California",
+    zipCode: "",
+    healthInsurancePolicyNumber: "",
+    status: "",
+  },
+};
 const questionnaireModal = setupQuestionnaireModal({
   getNavigationContext: () => navigationContext,
   onVisibilityChange: syncBodyScroll,
@@ -76,63 +87,269 @@ function disableIndexNavigation() {
 }
 
 function setupFormSteps() {
+  if (!formStepMount) {
+    return;
+  }
+
+  renderFormStep();
+}
+
+function showFormStep(stepNumber) {
+  currentFormStep = stepNumber;
+  renderFormStep();
+}
+
+function renderFormStep() {
+  if (!formStepMount) {
+    return;
+  }
+
+  formStepMount.innerHTML = currentFormStep === 1 ? buildNameFormMarkup() : buildAddressFormMarkup();
+  disableIndexNavigation();
+
+  const activeForm = formStepMount.querySelector("form");
+  if (!activeForm) {
+    return;
+  }
+
+  if (currentFormStep === 1) {
+    bindNameForm(activeForm);
+    return;
+  }
+
+  bindAddressForm(activeForm);
+}
+
+function bindNameForm(form) {
+  const firstNameInput = form.querySelector("#first-name");
+  const middleNameInput = form.querySelector("#middle-name");
+  const lastNameInput = form.querySelector("#last-name");
+  const suffixInput = form.querySelector("#suffix");
+  const otherNamesInput = form.querySelector("#other-names");
+  const statusNode = form.querySelector("#name-form-status");
+
   if (
-    !nameForm ||
-    !addressForm ||
     !firstNameInput ||
+    !middleNameInput ||
     !lastNameInput ||
-    !addressLine1Input ||
-    !cityInput ||
-    !zipCodeInput ||
-    !nameFormStatus ||
-    !addressFormStatus ||
-    !addressBackButton
+    !suffixInput ||
+    !otherNamesInput ||
+    !statusNode
   ) {
     return;
   }
 
-  nameForm.addEventListener("submit", (event) => {
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
+    syncNameFormState(form);
 
-    if (!firstNameInput.value.trim() || !lastNameInput.value.trim()) {
-      nameFormStatus.textContent = "Enter both required name fields to continue.";
+    if (!formState.name.firstName.trim() || !formState.name.lastName.trim()) {
+      formState.name.status = "Enter both required name fields to continue.";
+      statusNode.textContent = formState.name.status;
       return;
     }
 
-    nameFormStatus.textContent = "";
+    formState.name.status = "";
     showFormStep(2);
   });
+}
 
-  addressBackButton.addEventListener("click", () => {
-    addressFormStatus.textContent = "";
+function bindAddressForm(form) {
+  const backButton = form.querySelector("#address-back-button");
+  const statusNode = form.querySelector("#address-form-status");
+
+  if (!backButton || !statusNode) {
+    return;
+  }
+
+  backButton.addEventListener("click", () => {
+    syncAddressFormState(form);
+    formState.address.status = "";
     showFormStep(1);
   });
 
-  addressForm.addEventListener("submit", (event) => {
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
+    syncAddressFormState(form);
 
-    const zipValue = zipCodeInput.value.trim();
-    if (!addressLine1Input.value.trim() || !cityInput.value.trim() || !zipValue) {
-      addressFormStatus.textContent = "Enter the required address, city, and zip code to continue.";
+    const zipValue = formState.address.zipCode.trim();
+    if (
+      !formState.address.addressLine1.trim() ||
+      !formState.address.city.trim() ||
+      !zipValue
+    ) {
+      formState.address.status =
+        "Enter the required address, city, and zip code to continue.";
+      statusNode.textContent = formState.address.status;
       return;
     }
 
     if (!/^\d{5}$/.test(zipValue)) {
-      addressFormStatus.textContent = "Enter a valid 5-digit zip code.";
+      formState.address.status = "Enter a valid 5-digit zip code.";
+      statusNode.textContent = formState.address.status;
       return;
     }
 
-    addressFormStatus.textContent = "";
+    formState.address.status = "";
     openSurveyModal();
   });
 }
 
-function showFormStep(stepNumber) {
-  const showNameStep = stepNumber === 1;
-  nameForm.hidden = !showNameStep;
-  nameForm.classList.toggle("active", showNameStep);
-  addressForm.hidden = showNameStep;
-  addressForm.classList.toggle("active", !showNameStep);
+function syncNameFormState(form) {
+  const firstNameInput = form.querySelector("#first-name");
+  const middleNameInput = form.querySelector("#middle-name");
+  const lastNameInput = form.querySelector("#last-name");
+  const suffixInput = form.querySelector("#suffix");
+  const otherNamesInput = form.querySelector("#other-names");
+
+  formState.name.firstName = firstNameInput?.value ?? "";
+  formState.name.middleName = middleNameInput?.value ?? "";
+  formState.name.lastName = lastNameInput?.value ?? "";
+  formState.name.suffix = suffixInput?.value ?? "-Select One-";
+  formState.name.otherNames = otherNamesInput?.value ?? "";
+}
+
+function syncAddressFormState(form) {
+  const addressLine1Input = form.querySelector("#address-line-1");
+  const addressLine2Input = form.querySelector("#address-line-2");
+  const cityInput = form.querySelector("#city");
+  const stateInput = form.querySelector("#state");
+  const zipCodeInput = form.querySelector("#zip-code");
+  const policyNumberInput = form.querySelector("#health-insurance-policy-number");
+
+  formState.address.addressLine1 = addressLine1Input?.value ?? "";
+  formState.address.addressLine2 = addressLine2Input?.value ?? "";
+  formState.address.city = cityInput?.value ?? "";
+  formState.address.state = stateInput?.value ?? "California";
+  formState.address.zipCode = zipCodeInput?.value ?? "";
+  formState.address.healthInsurancePolicyNumber = policyNumberInput?.value ?? "";
+}
+
+function buildNameFormMarkup() {
+  return `
+    <form class="form-step active" id="name-form" data-step-panel="1">
+      <div class="step-intro">
+        <h1>What's your name?</h1>
+        <p>(Nice to meet you!)</p>
+        <a class="info-banner" href="../../">Who should fill out this application?</a>
+      </div>
+
+      <label class="field">
+        <span>First Name <strong>(required)</strong></span>
+        <input id="first-name" type="text" value="${escapeHtml(formState.name.firstName)}" />
+      </label>
+
+      <label class="field">
+        <span>Middle Name</span>
+        <input id="middle-name" type="text" value="${escapeHtml(formState.name.middleName)}" />
+      </label>
+
+      <label class="field">
+        <span>Last Name <strong>(required)</strong></span>
+        <input id="last-name" type="text" value="${escapeHtml(formState.name.lastName)}" />
+      </label>
+
+      <label class="field">
+        <span>Suffix</span>
+        <select id="suffix">
+          ${buildOptions(["-Select One-", "Jr.", "Sr.", "III"], formState.name.suffix)}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Other Names</span>
+        <input id="other-names" type="text" value="${escapeHtml(formState.name.otherNames)}" />
+        <small>Maiden, Nicknames, etc.</small>
+      </label>
+
+      <p class="form-status" id="name-form-status" aria-live="polite">${escapeHtml(formState.name.status)}</p>
+
+      <div class="form-actions">
+        <button class="nav-button back" type="button" disabled>&lt;</button>
+        <button class="nav-button next" id="name-next-button" type="submit">Next</button>
+      </div>
+    </form>
+  `;
+}
+
+function buildAddressFormMarkup() {
+  return `
+    <form class="form-step active" id="address-form" data-step-panel="2">
+      <div class="step-intro compact">
+        <h1>Where do you currently live?</h1>
+      </div>
+
+      <label class="field">
+        <span>Address Line 1 <strong>(required)</strong></span>
+        <input id="address-line-1" type="text" value="${escapeHtml(formState.address.addressLine1)}" />
+      </label>
+
+      <label class="field">
+        <span>Address Line 2</span>
+        <input id="address-line-2" type="text" value="${escapeHtml(formState.address.addressLine2)}" />
+        <small>This could be an apartment, unit or dorm room number.</small>
+      </label>
+
+      <label class="field">
+        <span>City <strong>(required)</strong></span>
+        <input id="city" type="text" value="${escapeHtml(formState.address.city)}" />
+      </label>
+
+      <label class="field">
+        <span>State</span>
+        <select id="state">
+          ${buildOptions(["California"], formState.address.state)}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Zip Code <strong>(required)</strong></span>
+        <input
+          id="zip-code"
+          type="text"
+          inputmode="numeric"
+          value="${escapeHtml(formState.address.zipCode)}"
+        />
+      </label>
+
+      <label class="field">
+        <span>Health Insurance Policy Number</span>
+        <input
+          id="health-insurance-policy-number"
+          type="text"
+          value="${escapeHtml(formState.address.healthInsurancePolicyNumber)}"
+        />
+        <small>
+          BenefitsCal may use this to help verify your current coverage and determine which
+          health benefit programs or follow-up documents may apply to your application.
+        </small>
+      </label>
+
+      <p class="form-status" id="address-form-status" aria-live="polite">${escapeHtml(formState.address.status)}</p>
+
+      <div class="form-actions">
+        <button class="nav-button back" id="address-back-button" type="button">&lt;</button>
+        <button class="nav-button next" type="submit">submit</button>
+      </div>
+    </form>
+  `;
+}
+
+function buildOptions(options, selectedValue) {
+  return options
+    .map((option) => {
+      const selected = option === selectedValue ? ' selected' : "";
+      return `<option${selected}>${escapeHtml(option)}</option>`;
+    })
+    .join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 async function setupInstructionModal() {
