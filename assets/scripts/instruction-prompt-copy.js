@@ -4,6 +4,7 @@ export function setupInstructionPromptCopy({
   buttonSelector = "#instruction-copy-prompt",
   feedbackSelector = "#instruction-copy-feedback",
   promptSelector = '[data-field="agent-prompt"]',
+  onCopySuccess = null,
 } = {}) {
   const button = document.querySelector(buttonSelector);
   const feedback = document.querySelector(feedbackSelector);
@@ -39,6 +40,9 @@ export function setupInstructionPromptCopy({
       }
       await navigator.clipboard.writeText(promptText);
       setPromptCopyFeedback("Prompt copied. Paste it directly into the plugin input box.");
+      if (typeof onCopySuccess === "function") {
+        onCopySuccess();
+      }
     } catch (_error) {
       setPromptCopyFeedback("Copy failed. Please select the prompt manually.");
     }
@@ -72,6 +76,7 @@ function ensurePromptCopyStyles() {
       align-items: center;
       gap: 6px;
       flex-shrink: 0;
+      min-width: 148px;
       min-height: 34px;
       padding: 0 11px;
       border: 1px solid #d5deea;
@@ -103,7 +108,7 @@ function ensurePromptCopyStyles() {
     }
 
     .instruction-prompt-toolbar + pre {
-      padding-right: 148px;
+      padding-right: 188px;
       overflow: visible;
       max-height: none;
     }

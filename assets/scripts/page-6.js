@@ -175,7 +175,14 @@ async function setupInstructionModal() {
   }, { pid, fallbackPid: experimentRow.pid, requestedStep, resolvedStep });
 
   navigationContext = buildNavigationContext(experimentRow, resolvedStep, pid);
-  const { clearPromptCopyFeedback } = setupInstructionPromptCopy();
+  const { closeInstructionModal } = setupInstructionReminder({
+    instructionModal,
+    startButton,
+    syncBodyScroll,
+  });
+  const { clearPromptCopyFeedback } = setupInstructionPromptCopy({
+    onCopySuccess: closeInstructionModal,
+  });
   const tutorialGate = setupInstructionVideoGate({
     instructionModal,
     tutorialFrame,
@@ -212,8 +219,6 @@ async function setupInstructionModal() {
   startButton.addEventListener("click", () => {
     clearPromptCopyFeedback();
   });
-  setupInstructionReminder({ instructionModal, startButton, syncBodyScroll });
-
   clearPromptCopyFeedback();
   instructionModal.hidden = false;
   renderStep();
