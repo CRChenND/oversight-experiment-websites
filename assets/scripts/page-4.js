@@ -178,10 +178,6 @@ function ensureTargetResultsView() {
   const title = document.createElement("h1");
   title.textContent = "Best Westminster Takeout near Westminster, CA";
 
-  const sortChip = document.createElement("div");
-  sortChip.className = "sort-chip";
-  sortChip.textContent = "Sort Recommended ⌄";
-
   const filterRow = document.createElement("div");
   filterRow.className = "filter-row";
 
@@ -206,7 +202,7 @@ function ensureTargetResultsView() {
   list.id = "target-results-list";
 
   headerCopy.append(breadcrumbs, title);
-  header.append(headerCopy, sortChip);
+  header.append(headerCopy);
   shell.append(header, filterRow, list);
   view.append(shell);
   yelpPage.append(view);
