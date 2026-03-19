@@ -8,9 +8,8 @@ const searchForm = document.querySelector("#search-form");
 const searchLocationInput = document.querySelector("#search-location");
 const searchStatus = document.querySelector("#search-status");
 const initialResultsView = document.querySelector("#results-view-initial");
-const targetResultsView = document.querySelector("#results-view-target");
 const initialResultsList = document.querySelector("#initial-results-list");
-const targetResultsList = document.querySelector("#target-results-list");
+const yelpPage = document.querySelector(".yelp-page");
 const surveyModal = document.querySelector("#survey-modal");
 const instructionModal = document.querySelector("#instruction-modal");
 const instructionStepLabel = document.querySelector("#instruction-step-label");
@@ -66,6 +65,8 @@ const initialResults = [
 
 let navigationContext = null;
 let currentMechanismName = "Oversight";
+let targetResultsView = null;
+let targetResultsList = null;
 const questionnaireModal = setupQuestionnaireModal({
   getNavigationContext: () => navigationContext,
   onVisibilityChange: syncBodyScroll,
@@ -114,11 +115,7 @@ function setupSearchFlow() {
 
     searchStatus.textContent = "";
     searchLocationInput.value = "Westminster, CA";
-    renderSections(targetResultsList, buildTargetResults(), true);
-    initialResultsView.hidden = true;
-    initialResultsView.classList.remove("active");
-    targetResultsView.hidden = false;
-    targetResultsView.classList.add("active");
+    renderTargetResults();
     window.scrollTo({ top: 0, behavior: "instant" });
   });
 }
@@ -128,18 +125,95 @@ function isTargetLocation(value) {
 }
 
 function clearTargetResults() {
-  if (!targetResultsList || !targetResultsView) {
-    return;
+  if (targetResultsView?.parentNode) {
+    targetResultsView.remove();
   }
 
-  targetResultsList.replaceChildren();
-  targetResultsView.hidden = true;
-  targetResultsView.classList.remove("active");
+  targetResultsView = null;
+  targetResultsList = null;
 
   if (initialResultsView) {
     initialResultsView.hidden = false;
     initialResultsView.classList.add("active");
   }
+}
+
+function renderTargetResults() {
+  const { view, list } = ensureTargetResultsView();
+  renderSections(list, buildTargetResults(), true);
+
+  if (initialResultsView) {
+    initialResultsView.hidden = true;
+    initialResultsView.classList.remove("active");
+  }
+
+  view.hidden = false;
+  view.classList.add("active");
+}
+
+function ensureTargetResultsView() {
+  if (targetResultsView && targetResultsList) {
+    return { view: targetResultsView, list: targetResultsList };
+  }
+
+  if (!yelpPage) {
+    throw new Error("Could not find the page container for target results.");
+  }
+
+  const view = document.createElement("section");
+  view.className = "results-view active";
+  view.id = "results-view-target";
+
+  const shell = document.createElement("div");
+  shell.className = "results-shell";
+
+  const header = document.createElement("div");
+  header.className = "results-header";
+
+  const headerCopy = document.createElement("div");
+  const breadcrumbs = document.createElement("p");
+  breadcrumbs.className = "breadcrumbs";
+  breadcrumbs.textContent = "Restaurants > Westminster Takeout";
+
+  const title = document.createElement("h1");
+  title.textContent = "Best Westminster Takeout near Westminster, CA";
+
+  const sortChip = document.createElement("div");
+  sortChip.className = "sort-chip";
+  sortChip.textContent = "Sort Recommended ⌄";
+
+  const filterRow = document.createElement("div");
+  filterRow.className = "filter-row";
+
+  const filterLabels = [
+    ["Offers Takeout", true],
+    ["Price", false],
+    ["Open Now", false],
+    ["Offers Delivery", false],
+    ["Good for Dinner", false],
+    ["Good for Kids", false],
+  ];
+
+  filterLabels.forEach(([label, active]) => {
+    const chip = document.createElement("span");
+    chip.className = active ? "filter-chip active" : "filter-chip";
+    chip.textContent = label;
+    filterRow.append(chip);
+  });
+
+  const list = document.createElement("div");
+  list.className = "results-list";
+  list.id = "target-results-list";
+
+  headerCopy.append(breadcrumbs, title);
+  header.append(headerCopy, sortChip);
+  shell.append(header, filterRow, list);
+  view.append(shell);
+  yelpPage.append(view);
+
+  targetResultsView = view;
+  targetResultsList = list;
+  return { view, list };
 }
 
 function buildTargetResults() {
