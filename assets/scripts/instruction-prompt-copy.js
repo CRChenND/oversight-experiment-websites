@@ -1,12 +1,5 @@
 const PROMPT_COPY_STYLE_ID = "instruction-prompt-copy-style";
 
-export function normalizeInstructionPromptText(text) {
-  return String(text ?? "")
-    .replace(/<\/?(?:tool|input|assistant|user|conversation|message|turn|response|analysis|final)(?:\s[^>]*)?>/gi, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
 export function setupInstructionPromptCopy({
   buttonSelector = "#instruction-copy-prompt",
   feedbackSelector = "#instruction-copy-feedback",

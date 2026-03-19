@@ -1,5 +1,5 @@
 import { setupInstructionReminder } from "./instruction-reminder.js";
-import { normalizeInstructionPromptText, setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
+import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 import { setupInstructionVideoGate } from "./instruction-video-gate.js";
 
 const postLaunchButton = document.querySelector("#post-launch-button");
@@ -263,7 +263,7 @@ function applyInstructionContent(content, context) {
   }
 
   if (promptNode) {
-    promptNode.textContent = normalizeInstructionPromptText(content.agent_prompt);
+    promptNode.textContent = content.agent_prompt;
   }
 
   tutorialFrame.replaceChildren(buildTutorialNode(INITIAL_TUTORIAL_VIDEO));

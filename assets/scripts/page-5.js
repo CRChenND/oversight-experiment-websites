@@ -1,7 +1,7 @@
 import { setupQuestionnaireModal } from "./questionnaire-modal.js";
 import { ensureInstructionPersonaBlock } from "./instruction-persona.js";
 import { setupInstructionReminder } from "./instruction-reminder.js";
-import { normalizeInstructionPromptText, setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
+import { setupInstructionPromptCopy } from "./instruction-prompt-copy.js";
 import { setupInstructionVideoGate } from "./instruction-video-gate.js";
 
 const eventsList = document.querySelector("#events-list");
@@ -359,7 +359,7 @@ function applyInstructionContent(content, context) {
   const taskNode = document.querySelector('[data-field="task-description"]');
   const promptNode = document.querySelector('[data-field="agent-prompt"]');
   if (taskNode) taskNode.textContent = content.task_description;
-  if (promptNode) promptNode.textContent = normalizeInstructionPromptText(content.agent_prompt);
+  if (promptNode) promptNode.textContent = content.agent_prompt;
   ensureInstructionPersonaBlock(taskCopy);
   tutorialFrame.replaceChildren(buildTutorialNode(content.oversight_mechanism_tutorial_video));
   statusMessage.textContent = buildStatusMessage(context);
