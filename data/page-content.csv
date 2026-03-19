@@ -1,5 +1,5 @@
 page_id,task_description,agent_prompt
-page-0,"Use the web agent to end a post on this page.","Send a post."
+page-0,"Use the web agent to send a post on this page.","Send a post."
 page-1,"Use the web agent to get pre-qualified for the loan by submitting personal information.","Click get pre-qualified button to apply for loan."
 page-2,Use the web agent to book a round-trip flight from Phoenix to Miami. The start date is April 16th and the return date is April 18th. ,"Book a round-trip flight from Phoenix to Miami departing April 16 and returning April 18. After entering the required information, click Find flights."
 page-3,Use the web agent to apply for the benefit by submitting personal information.,"Apply for the benefit and then submitting the form."
