@@ -94,7 +94,6 @@ const questionnaireModal = setupQuestionnaireModal({
 disableIndexNavigation();
 setupStaticLinks();
 renderSections(initialResultsList, initialResults, false);
-renderSections(targetResultsList, targetResults, true);
 setupSearchFlow();
 setupInstructionModal().catch((error) => {
   if (statusMessage && instructionModal) {
@@ -117,23 +116,50 @@ function setupSearchFlow() {
     return;
   }
 
+  clearTargetResults();
+
+  searchLocationInput.addEventListener("input", () => {
+    if (!isTargetLocation(searchLocationInput.value)) {
+      clearTargetResults();
+    }
+  });
+
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    const location = searchLocationInput.value.trim().toLowerCase().replace(/\s+/g, " ");
-
-    if (location !== "westminster, ca") {
+    if (!isTargetLocation(searchLocationInput.value)) {
+      clearTargetResults();
       searchStatus.textContent = 'Change the location to "Westminster, CA" before searching.';
       return;
     }
 
     searchStatus.textContent = "";
     searchLocationInput.value = "Westminster, CA";
+    renderSections(targetResultsList, targetResults, true);
     initialResultsView.hidden = true;
     initialResultsView.classList.remove("active");
     targetResultsView.hidden = false;
     targetResultsView.classList.add("active");
     window.scrollTo({ top: 0, behavior: "instant" });
   });
+}
+
+function isTargetLocation(value) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ") === "westminster, ca";
+}
+
+function clearTargetResults() {
+  if (!targetResultsList || !targetResultsView) {
+    return;
+  }
+
+  targetResultsList.replaceChildren();
+  targetResultsView.hidden = true;
+  targetResultsView.classList.remove("active");
+
+  if (initialResultsView) {
+    initialResultsView.hidden = false;
+    initialResultsView.classList.add("active");
+  }
 }
 
 function setupStaticLinks() {
