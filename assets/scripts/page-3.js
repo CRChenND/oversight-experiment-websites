@@ -329,7 +329,7 @@ function buildAddressFormMarkup() {
 
       <div class="form-actions">
         <button class="nav-button back" id="address-back-button" type="button">&lt;</button>
-        <button class="nav-button next" type="submit">submit</button>
+        <button class="nav-button next" type="submit">Submit</button>
       </div>
     </form>
   `;
